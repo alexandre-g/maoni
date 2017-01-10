@@ -42,8 +42,8 @@ android {
     }
 }
 
-group = 'org.rm3l'
-version = '2.3.1'
+group = 'com.github.alexandre-g'
+version = '2.3.5'
 
 final homePath = System.properties['user.home']
 
