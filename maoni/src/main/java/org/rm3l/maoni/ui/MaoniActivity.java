@@ -532,17 +532,15 @@ public class MaoniActivity extends AppCompatActivity {
                 final String fileProviderAuthority = intent.getStringExtra(FILE_PROVIDER_AUTHORITY);
                 if (mScreenshotFilePath != null) {
                     screenshotFile = new File(mScreenshotFilePath.toString());
-                    screenshotUri = FileProvider
-                            .getUriForFile(this, fileProviderAuthority, screenshotFile);
-                    grantUriPermission(intent.getComponent().getPackageName(),
-                            screenshotUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    //screenshotUri = FileProvider.getUriForFile(this, fileProviderAuthority, screenshotFile);
+                    //grantUriPermission(intent.getComponent().getPackageName(), screenshotUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 }
-                if (logsFile != null) {
+                /*if (logsFile != null) {
                     logsUri = FileProvider
                             .getUriForFile(this, fileProviderAuthority, logsFile);
                     grantUriPermission(intent.getComponent().getPackageName(),
                             logsUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                }
+                }*/
             }
 
             //Construct the feedback object and call the actual implementation
