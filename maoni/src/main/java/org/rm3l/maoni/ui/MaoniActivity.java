@@ -32,7 +32,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -42,6 +41,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -94,6 +94,9 @@ public class MaoniActivity extends AppCompatActivity {
     public static final String CONTENT_ERROR_TEXT = "CONTENT_ERROR_TEXT";
     public static final String SCREENSHOT_TOUCH_TO_PREVIEW_HINT = "SCREENSHOT_PREVIEW_HINT";
     public static final String INCLUDE_LOGS_TEXT = "INCLUDE_LOGS_TEXT";
+    public static final String HIDE_LOGS_OPTION = "HIDE_LOGS_OPTION";
+    public static final String HIDE_SCREENSHOT_OPTION = "HIDE_SCREENSHOT_OPTION";
+    public static final String SHOW_KEYBOARD_ON_START = "SHOW_KEYBOARD_ON_START";
     public static final String INCLUDE_SCREENSHOT_TEXT = "INCLUDE_SCREENSHOT_TEXT";
     public static final String EXTRA_LAYOUT = "EXTRA_LAYOUT";
 
@@ -131,6 +134,8 @@ public class MaoniActivity extends AppCompatActivity {
 
     private int mHighlightColor;
     private int mBlackoutColor;
+
+    private Boolean showKeyboardOnStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -244,17 +249,32 @@ public class MaoniActivity extends AppCompatActivity {
         }
 
         mIncludeLogs = (CheckBox) findViewById(R.id.maoni_include_logs);
-        if (mIncludeLogs != null && intent.hasExtra(INCLUDE_LOGS_TEXT)) {
-            mIncludeLogs.setText(intent.getCharSequenceExtra(INCLUDE_LOGS_TEXT));
+        Boolean hideLogsCheckbox = intent.getBooleanExtra(HIDE_LOGS_OPTION, false);
+        if (hideLogsCheckbox) {
+            mIncludeLogs.setVisibility(View.GONE);
+        } else {
+            if (mIncludeLogs != null && intent.hasExtra(INCLUDE_LOGS_TEXT)) {
+                mIncludeLogs.setText(intent.getCharSequenceExtra(INCLUDE_LOGS_TEXT));
+            }
         }
 
         mIncludeScreenshot = (CheckBox) findViewById(R.id.maoni_include_screenshot);
-        if (mIncludeScreenshot != null && intent.hasExtra(INCLUDE_SCREENSHOT_TEXT)) {
-            mIncludeScreenshot.setText(intent.getCharSequenceExtra(INCLUDE_SCREENSHOT_TEXT));
+        Boolean hideScreenshot = intent.getBooleanExtra(HIDE_SCREENSHOT_OPTION, false);
+        if (hideScreenshot) {
+            mIncludeScreenshot.setVisibility(View.GONE);
+            findViewById(R.id.maoni_screenshot).setVisibility(View.GONE);
+            findViewById(R.id.maoni_include_screenshot_content).setVisibility(View.GONE);
+            findViewById(R.id.maoni_screenshot_touch_to_preview).setVisibility(View.GONE);
+        } else {
+            if (mIncludeScreenshot != null && intent.hasExtra(INCLUDE_SCREENSHOT_TEXT)) {
+                mIncludeScreenshot.setText(intent.getCharSequenceExtra(INCLUDE_SCREENSHOT_TEXT));
+            }
+
+            mScreenshotFilePath = intent.getCharSequenceExtra(SCREENSHOT_FILE);
+            initScreenCaptureView(intent);
         }
 
-        mScreenshotFilePath = intent.getCharSequenceExtra(SCREENSHOT_FILE);
-        initScreenCaptureView(intent);
+        showKeyboardOnStart = intent.getBooleanExtra(SHOW_KEYBOARD_ON_START, true);
 
         mFeedbackUniqueId = UUID.randomUUID().toString();
 
@@ -297,12 +317,17 @@ public class MaoniActivity extends AppCompatActivity {
         }
     }
 
-    private void initScreenCaptureView(@NonNull final Intent intent) {
-        final ImageButton screenshotThumb = (ImageButton)
-                findViewById(R.id.maoni_screenshot);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!showKeyboardOnStart)
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
 
-        final TextView touchToPreviewTextView =
-                (TextView) findViewById(R.id.maoni_screenshot_touch_to_preview);
+    private void initScreenCaptureView(@NonNull final Intent intent) {
+        final ImageButton screenshotThumb = (ImageButton) findViewById(R.id.maoni_screenshot);
+
+        final TextView touchToPreviewTextView = (TextView) findViewById(R.id.maoni_screenshot_touch_to_preview);
         if (touchToPreviewTextView != null && intent.hasExtra(SCREENSHOT_TOUCH_TO_PREVIEW_HINT)) {
             touchToPreviewTextView.setText(
                     intent.getCharSequenceExtra(SCREENSHOT_TOUCH_TO_PREVIEW_HINT));

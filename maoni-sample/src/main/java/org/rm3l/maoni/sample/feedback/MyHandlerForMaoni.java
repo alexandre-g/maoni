@@ -31,7 +31,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.rm3l.maoni.common.contract.Handler;
@@ -146,13 +145,13 @@ public class MyHandlerForMaoni extends MaoniEmailListener implements Handler {
 
     @Override
     public void onCreate(@NonNull View rootView, @Nullable final Bundle savedInstanceState) {
-        mEmailInputLayout = (TextInputLayout) rootView.findViewById(R.id.extra_email_inputlayout);
-        mEmail = (EditText) rootView.findViewById(R.id.extra_email);
+        //mEmailInputLayout = (TextInputLayout) rootView.findViewById(R.id.extra_email_inputlayout);
+        //mEmail = (EditText) rootView.findViewById(R.id.extra_email);
 
-        mExtraEditText = (EditText) rootView.findViewById(R.id.extra_edittext);
-        mExtraRadioGroup = (RadioGroup) rootView.findViewById(R.id.extra_radiogroup);
+        //mExtraEditText = (EditText) rootView.findViewById(R.id.extra_edittext);
+        //mExtraRadioGroup = (RadioGroup) rootView.findViewById(R.id.extra_radiogroup);
 
         //You may pre-fill some fields accordingly, before they are displayed to the user
-        mEmail.setText("a@b.cd", TextView.BufferType.EDITABLE);
+        //mEmail.setText("a@b.cd", TextView.BufferType.EDITABLE);
     }
 }

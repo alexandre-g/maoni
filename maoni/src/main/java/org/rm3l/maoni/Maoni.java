@@ -57,12 +57,15 @@ import static org.rm3l.maoni.ui.MaoniActivity.CONTENT_HINT;
 import static org.rm3l.maoni.ui.MaoniActivity.EXTRA_LAYOUT;
 import static org.rm3l.maoni.ui.MaoniActivity.FILE_PROVIDER_AUTHORITY;
 import static org.rm3l.maoni.ui.MaoniActivity.HEADER;
+import static org.rm3l.maoni.ui.MaoniActivity.HIDE_LOGS_OPTION;
+import static org.rm3l.maoni.ui.MaoniActivity.HIDE_SCREENSHOT_OPTION;
 import static org.rm3l.maoni.ui.MaoniActivity.INCLUDE_LOGS_TEXT;
 import static org.rm3l.maoni.ui.MaoniActivity.INCLUDE_SCREENSHOT_TEXT;
 import static org.rm3l.maoni.ui.MaoniActivity.MESSAGE;
 import static org.rm3l.maoni.ui.MaoniActivity.SCREENSHOT_FILE;
 import static org.rm3l.maoni.ui.MaoniActivity.SCREENSHOT_HINT;
 import static org.rm3l.maoni.ui.MaoniActivity.SCREENSHOT_TOUCH_TO_PREVIEW_HINT;
+import static org.rm3l.maoni.ui.MaoniActivity.SHOW_KEYBOARD_ON_START;
 import static org.rm3l.maoni.ui.MaoniActivity.THEME;
 import static org.rm3l.maoni.ui.MaoniActivity.TOOLBAR_SUBTITLE_TEXT_COLOR;
 import static org.rm3l.maoni.ui.MaoniActivity.TOOLBAR_TITLE_TEXT_COLOR;
@@ -138,6 +141,21 @@ public class Maoni {
     @Nullable
     public final CharSequence includeLogsText;
     /**
+     * Hide the option that lets user choose whether to send system logs or not
+     */
+    @Nullable
+    public final Boolean hideLogsOption;
+    /**
+     * Hide the option that lets user choose whether to send screenshot or not
+     */
+    @Nullable
+    public final Boolean hideScreenshotOption;
+    /**
+     * Automatically show keyboard on opening the feedback activity
+     */
+    @Nullable
+    public final Boolean showingKeyboardOnStart;
+    /**
      * Text do display next to the "Include screenshot" checkbox
      */
     @Nullable
@@ -183,6 +201,7 @@ public class Maoni {
      * @param contentErrorMessage          the feedback form field error message to display to the user
      * @param extraLayout                  the extra layout resource.
      * @param includeLogsText              the text do display next to the "Include logs" checkbox
+     * @param hideLogsOption               whether to show or hide "Include logs" checkbox
      * @param includeScreenshotText        the text do display next to the "Include screenshot" checkbox
      * @param touchToPreviewScreenshotText the "Touch to preview" text
      * @param screenshotHint               the text to display to the user
@@ -201,6 +220,9 @@ public class Maoni {
             @Nullable final CharSequence contentErrorMessage,
             @LayoutRes @Nullable final Integer extraLayout,
             @Nullable final CharSequence includeLogsText,
+            @Nullable final Boolean hideLogsOption,
+            @Nullable final Boolean hideScreenshotOption,
+            @Nullable final Boolean showingKeyboardOnStart,
             @Nullable final CharSequence includeScreenshotText,
             @Nullable final CharSequence touchToPreviewScreenshotText,
             @Nullable final CharSequence screenshotHint) {
@@ -217,6 +239,9 @@ public class Maoni {
         this.screenshotHint = screenshotHint;
         this.header = header;
         this.includeLogsText = includeLogsText;
+        this.hideLogsOption = hideLogsOption;
+        this.hideScreenshotOption = hideScreenshotOption;
+        this.showingKeyboardOnStart = showingKeyboardOnStart;
         this.includeScreenshotText = includeScreenshotText;
         this.touchToPreviewScreenshotText = touchToPreviewScreenshotText;
         this.extraLayout = extraLayout;
@@ -347,6 +372,12 @@ public class Maoni {
             maoniIntent.putExtra(INCLUDE_LOGS_TEXT, includeLogsText);
         }
 
+        maoniIntent.putExtra(HIDE_LOGS_OPTION, hideLogsOption);
+
+        maoniIntent.putExtra(HIDE_SCREENSHOT_OPTION, hideScreenshotOption);
+
+        maoniIntent.putExtra(SHOW_KEYBOARD_ON_START, showingKeyboardOnStart);
+
         if (touchToPreviewScreenshotText != null) {
             maoniIntent.putExtra(SCREENSHOT_TOUCH_TO_PREVIEW_HINT, touchToPreviewScreenshotText);
         }
@@ -415,6 +446,12 @@ public class Maoni {
         private Integer header;
         @Nullable
         private CharSequence includeScreenshotText;
+        @Nullable
+        private Boolean hideLogsOption;
+        @Nullable
+        private Boolean hideScreenshotOption;
+        @Nullable
+        private Boolean showingKeyboardOnStart;
         @Nullable
         private CharSequence includeLogsText;
         @Nullable
@@ -523,6 +560,33 @@ public class Maoni {
             return this;
         }
 
+        public Boolean getHideLogsOption() {
+            return hideLogsOption;
+        }
+
+        public Builder hidingLogsOption() {
+            this.hideLogsOption = true;
+            return this;
+        }
+
+        public Boolean getHideScreenshotOption() {
+            return hideScreenshotOption;
+        }
+
+        public Builder hidingScreenshot() {
+            this.hideScreenshotOption = true;
+            return this;
+        }
+
+        public Boolean getShowKeyboardOnStart() {
+            return showingKeyboardOnStart;
+        }
+
+        public Builder showingKeyboardOnStart(Boolean showing) {
+            this.showingKeyboardOnStart = showing;
+            return this;
+        }
+
         @Nullable
         public CharSequence getIncludeScreenshotText() {
             return includeScreenshotText;
@@ -621,6 +685,9 @@ public class Maoni {
                     contentErrorMessage,
                     extraLayout,
                     includeLogsText,
+                    hideLogsOption,
+                    hideScreenshotOption,
+                    showingKeyboardOnStart,
                     includeScreenshotText,
                     touchToPreviewScreenshotText,
                     screenshotHint);
