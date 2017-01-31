@@ -41,7 +41,7 @@ import java.io.OutputStream;
  */
 public final class ViewUtils {
 
-    public static final int COMPRESSION_QUALITY = 100;
+    public static final int COMPRESSION_QUALITY = 75;
     public static final int DEFAULT_BITMAP_WIDTH = 640;
     public static final int DEFAULT_BITMAP_HEIGHT = 480;
 
@@ -97,7 +97,7 @@ public final class ViewUtils {
         OutputStream outputStream = null;
         try {
             outputStream = new BufferedOutputStream(new FileOutputStream(file, false));
-            bitmap.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY, outputStream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY, outputStream);
             outputStream.flush();
         } catch (final IOException e) {
             e.printStackTrace();
