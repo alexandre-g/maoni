@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -39,7 +40,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
@@ -57,6 +57,7 @@ import org.rm3l.maoni.common.contract.Validator;
 import org.rm3l.maoni.common.model.Feedback;
 import org.rm3l.maoni.utils.LogcatUtils;
 import org.rm3l.maoni.utils.ViewUtils;
+import org.rm3l.maoni.widgets.AppBarStateChangeListener;
 
 import java.io.File;
 import java.util.UUID;
@@ -279,35 +280,13 @@ public class MaoniActivity extends AppCompatActivity {
         mFeedbackUniqueId = UUID.randomUUID().toString();
 
         final View fab = findViewById(R.id.maoni_fab);
-        if (fab != null) {
-            final ViewTreeObserver viewTreeObserver = fab.getViewTreeObserver();
-            if (viewTreeObserver == null) {
-                if (this.mMenu != null) {
-                    final MenuItem item = this.mMenu.findItem(R.id.maoni_feedback_send);
-                    if (item != null) {
-                        item.setVisible(false);
-                    }
-                }
-            } else {
-                viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        if (mMenu != null) {
-                            final MenuItem item = mMenu.findItem(R.id.maoni_feedback_send);
-                            if (item != null) {
-                                item.setVisible(fab.getVisibility() != View.VISIBLE);
-                            }
-                        }
-                    }
-                });
-            }
+        if (fab != null)
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     validateAndSubmitForm();
                 }
             });
-        }
 
         setAppRelatedInfo();
 
@@ -469,6 +448,17 @@ public class MaoniActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.maoni_activity_menu, menu);
         this.mMenu = menu;
+
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.maoni_app_bar);
+        appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+            @Override
+            public void onStateChanged(AppBarLayout appBarLayout, State state) {
+                final MenuItem item = mMenu.findItem(R.id.maoni_feedback_send);
+                if (item != null)
+                    item.setVisible(state != State.EXPANDED);
+            }
+        });
+
         return super.onCreateOptionsMenu(menu);
     }
 
