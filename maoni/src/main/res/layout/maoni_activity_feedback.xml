@@ -33,7 +33,7 @@ SOFTWARE.
         android:layout_width="match_parent"
         android:layout_height="@dimen/maoni_activity_app_bar_height"
         android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:theme="@style/MaoniTheme.Toolbar">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/maoni_toolbar_layout"
@@ -62,12 +62,10 @@ SOFTWARE.
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:popupTheme="@style/MaoniTheme.ToolbarPopup"
                 app:subtitleTextAppearance="@style/MaoniTheme.ToolbarSubtitle"
-                app:subtitleTextColor="@color/maoni_white"
-                app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                app:titleTextAppearance="@style/MaoniTheme.ToolbarTitle"
-                app:titleTextColor="@color/maoni_white" />
+                app:theme="@style/MaoniTheme.Toolbar"
+                app:titleTextAppearance="@style/MaoniTheme.ToolbarTitle" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>

@@ -28,6 +28,8 @@ SOFTWARE.
         <item name="colorAccent">@color/maoni_colorAccent</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
     <style name="Maoni_AppTheme_Light" parent="Maoni_AppTheme_Base">
@@ -43,6 +45,10 @@ SOFTWARE.
         <item name="android:windowBackground">@color/maoni_windowBackgroundDark</item>
         <item name="android:colorBackground">@color/maoni_windowBackgroundDark</item>
     </style>
+
+    <style name="MaoniTheme.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="MaoniTheme.ToolbarPopup" parent="ThemeOverlay.AppCompat.Light"/>
 
     <!-- Toolbar title style -->
     <style name="MaoniTheme.ToolbarTitle" parent="Base.TextAppearance.Widget.AppCompat.Toolbar.Title">
