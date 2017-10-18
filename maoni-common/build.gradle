@@ -28,7 +28,7 @@ targetCompatibility = '1.7'
 sourceCompatibility = '1.7'
 
 group = 'com.github.alexandre-g'
-version = '2.3.5'
+version = '2.4.2'
 
 final homePath = System.properties['user.home']
 

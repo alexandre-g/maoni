@@ -25,12 +25,12 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 231
         versionName "2.3.1"
     }
@@ -43,7 +43,7 @@ android {
 }
 
 group = 'com.github.alexandre-g'
-version = '2.3.5'
+version = '2.4.2'
 
 final homePath = System.properties['user.home']
 
@@ -51,8 +51,8 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(":maoni-common")
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:design:25.1.0'
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support:design:26.1.0'
     compile 'me.panavtec:drawableview:0.6.0'
 }
 
