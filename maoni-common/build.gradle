@@ -24,8 +24,8 @@ apply plugin: 'java'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-targetCompatibility = '1.7'
-sourceCompatibility = '1.7'
+targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 group = 'com.github.alexandre-g'
 version = '2.4.3'
