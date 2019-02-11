@@ -25,14 +25,14 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 27
-        versionCode 600
-        versionName "6.0.0"
+        targetSdkVersion 28
+        versionCode 601
+        versionName "6.0.1"
     }
     buildTypes {
         release {
@@ -48,8 +48,8 @@ android {
     }
 }
 
-group = 'org.rm3l'
-version = '6.0.0'
+group = 'com.github.alexandre-g'
+version = '6.0.1'
 
 final homePath = System.properties['user.home']
 
@@ -57,8 +57,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(":maoni-common")
     testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:27.1.0'
-    implementation 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
     implementation 'me.panavtec:drawableview:0.6.0'
 
     //Include maoni-email as the default listener
@@ -113,10 +114,10 @@ bintray {
 
         //noinspection GroovyAssignabilityCheck
         version {
-            name = '6.0.0'
+            name = '6.0.1'
             desc = 'Maoni Android Library'
             released  = new Date()
-            vcsTag = '6.0.0'
+            vcsTag = '6.0.1'
         }
 
         publicDownloadNumbers = true
