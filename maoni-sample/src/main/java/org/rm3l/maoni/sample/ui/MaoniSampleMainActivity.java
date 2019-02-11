@@ -22,7 +22,10 @@
 
 package org.rm3l.maoni.sample.ui;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,20 +37,18 @@ import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import org.rm3l.maoni.Maoni;
-import org.rm3l.maoni.sample.BuildConfig;
+import org.rm3l.maoni.common.contract.Handler;
 import org.rm3l.maoni.sample.R;
-import org.rm3l.maoni.sample.feedback.MyHandlerForMaoni;
+import org.rm3l.maoni.sample.extensions.ContextUtils;
 
 public class MaoniSampleMainActivity extends AppCompatActivity {
-
-    private static final String MY_FILE_PROVIDER_AUTHORITY =
-            (BuildConfig.APPLICATION_ID + ".fileprovider");
 
     private Maoni mMaoni;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PreferenceManager.setDefaultValues(this, R.xml.maoni_sample_preferences, false);
         setContentView(R.layout.activity_maoni_sample_main);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -55,19 +56,8 @@ public class MaoniSampleMainActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
         }
 
-        final MyHandlerForMaoni handlerForMaoni = new MyHandlerForMaoni(this);
-        final Maoni.Builder maoniBuilder = new Maoni.Builder(MY_FILE_PROVIDER_AUTHORITY)
-                .withWindowTitle("Feedback") //Set to an empty string to clear it
-                .withMessage("Hey! Love or hate this app? We would love to hear from you.\n\n" +
-                        "Note: Almost everything in Maoni is customizable.")
-                .withExtraLayout(R.layout.my_feedback_activity_extra_content)
-                .withFeedbackContentHint("[Custom hint] Write your feedback here")
-                .withIncludeLogsText("[Custom text] Include system logs")
-                .withIncludeScreenshotText("[Custom text] Include screenshot")
-                .withTouchToPreviewScreenshotText("Touch To Preview")
-                .withContentErrorMessage("Custom error message")
-                .withScreenshotHint("Custom test: Lorem Ipsum Dolor Sit Amet...");
-
+        final Handler handlerForMaoni = ContextUtils.getMaoniFeedbackHandler(this); //Custom handler for Maoni, which does nothing more than calling any of the maoni-* available callbacks
+        final Maoni.Builder maoniBuilder = ContextUtils.getMaoniFeedbackBuilder(this);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
@@ -77,7 +67,18 @@ public class MaoniSampleMainActivity extends AppCompatActivity {
                     // so we need to re-register it again by reconstructing a new Maoni instance.
                     //Also, Maoni.start(...) cannot be called twice,
                     // but we are reusing the Builder to construct a new instance along with its handler.
-                    mMaoni = maoniBuilder.withHandler(handlerForMaoni).build();
+                    //
+                    //Note that if no handler/listener is specified,
+                    //Maoni will fall back to opening an Email Intent, so your users can send
+                    //their feedback via email
+                  final SharedPreferences defaultSharedPreferences =
+                      PreferenceManager.getDefaultSharedPreferences(MaoniSampleMainActivity.this);
+                  mMaoni = maoniBuilder
+                        .withScreenCapturingFeature(defaultSharedPreferences
+                            .getBoolean("maoni_screen_capturing_enabled", true))
+                        .withLogsCapturingFeature(defaultSharedPreferences
+                            .getBoolean("maoni_logs_capturing_enabled", true))
+                        .withHandler(handlerForMaoni).build();
                     mMaoni.start(MaoniSampleMainActivity.this);
                 }
             });
@@ -99,22 +100,23 @@ public class MaoniSampleMainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                break;
-            case R.id.action_about:
-                new LibsBuilder()
-                        //Pass the fields of your application to the lib so it can find all external lib information
-                        .withFields(R.string.class.getFields())
-                        .withActivityTitle(getString(R.string.action_about))
-                        //provide a style (optional) (LIGHT, DARK, LIGHT_DARK_TOOLBAR)
-                        .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
-                        //start the activity
-                        .start(this);
-                break;
-            default:
-                break;
+        final int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            onBackPressed();
+
+        } else if (itemId == R.id.action_settings) {
+            startActivity(new Intent(this, MaoniSampleSettingsActivity.class));
+
+        } else if (itemId == R.id.action_about) {
+            new LibsBuilder()
+                    //Pass the fields of your application to the lib so it can find all external lib information
+                    .withFields(R.string.class.getFields())
+                    .withActivityTitle(getString(R.string.action_about))
+                    //provide a style (optional) (LIGHT, DARK, LIGHT_DARK_TOOLBAR)
+                    .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
+                    //start the activity
+                    .start(this);
+
         }
         return super.onOptionsItemSelected(item);
     }

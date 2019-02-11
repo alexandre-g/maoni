@@ -21,7 +21,9 @@
  */
 package org.rm3l.maoni;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -33,10 +35,17 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.util.Log;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.rm3l.maoni.common.contract.Handler;
 import org.rm3l.maoni.common.contract.Listener;
 import org.rm3l.maoni.common.contract.UiListener;
 import org.rm3l.maoni.common.contract.Validator;
+import org.rm3l.maoni.email.MaoniEmailListener;
 import org.rm3l.maoni.ui.MaoniActivity;
 import org.rm3l.maoni.utils.ContextUtils;
 import org.rm3l.maoni.utils.ViewUtils;
@@ -57,14 +66,15 @@ import static org.rm3l.maoni.ui.MaoniActivity.CONTENT_HINT;
 import static org.rm3l.maoni.ui.MaoniActivity.EXTRA_LAYOUT;
 import static org.rm3l.maoni.ui.MaoniActivity.FILE_PROVIDER_AUTHORITY;
 import static org.rm3l.maoni.ui.MaoniActivity.HEADER;
-import static org.rm3l.maoni.ui.MaoniActivity.HIDE_LOGS_OPTION;
-import static org.rm3l.maoni.ui.MaoniActivity.HIDE_SCREENSHOT_OPTION;
 import static org.rm3l.maoni.ui.MaoniActivity.INCLUDE_LOGS_TEXT;
 import static org.rm3l.maoni.ui.MaoniActivity.INCLUDE_SCREENSHOT_TEXT;
+import static org.rm3l.maoni.ui.MaoniActivity.LOGS_CAPTURING_FEATURE_ENABLED;
 import static org.rm3l.maoni.ui.MaoniActivity.MESSAGE;
 import static org.rm3l.maoni.ui.MaoniActivity.SCREENSHOT_FILE;
 import static org.rm3l.maoni.ui.MaoniActivity.SCREENSHOT_HINT;
 import static org.rm3l.maoni.ui.MaoniActivity.SCREENSHOT_TOUCH_TO_PREVIEW_HINT;
+import static org.rm3l.maoni.ui.MaoniActivity.SCREEN_CAPTURING_FEATURE_ENABLED;
+import static org.rm3l.maoni.ui.MaoniActivity.SHARED_PREFERENCES;
 import static org.rm3l.maoni.ui.MaoniActivity.SHOW_KEYBOARD_ON_START;
 import static org.rm3l.maoni.ui.MaoniActivity.THEME;
 import static org.rm3l.maoni.ui.MaoniActivity.TOOLBAR_SUBTITLE_TEXT_COLOR;
@@ -76,6 +86,7 @@ import static org.rm3l.maoni.ui.MaoniActivity.WORKING_DIR;
 /**
  * Maoni configuration
  */
+@SuppressWarnings("WeakerAccess")
 public class Maoni {
 
     private static final String LOG_TAG = Maoni.class.getSimpleName();
@@ -85,6 +96,7 @@ public class Maoni {
     private static final String DEBUG = "DEBUG";
     private static final String FLAVOR = "FLAVOR";
     private static final String BUILD_TYPE = "BUILD_TYPE";
+    public static final String DEFAULT_LISTENER_EMAIL_TO = "DEFAULT_LISTENER_EMAIL_TO";
 
     /**
      * The feedback window title
@@ -141,21 +153,6 @@ public class Maoni {
     @Nullable
     public final CharSequence includeLogsText;
     /**
-     * Hide the option that lets user choose whether to send system logs or not
-     */
-    @Nullable
-    public final Boolean hideLogsOption;
-    /**
-     * Hide the option that lets user choose whether to send screenshot or not
-     */
-    @Nullable
-    public final Boolean hideScreenshotOption;
-    /**
-     * Automatically show keyboard on opening the feedback activity
-     */
-    @Nullable
-    public final Boolean showingKeyboardOnStart;
-    /**
      * Text do display next to the "Include screenshot" checkbox
      */
     @Nullable
@@ -177,75 +174,52 @@ public class Maoni {
     @Nullable
     public final Integer theme;
     private final String fileProviderAuthority;
+    @Nullable
+    private final Context context;
     private File maoniWorkingDir;
+
+    private final HashMap<String, Object> sharedPreferencesContentMap;
+
+    private boolean showKeyboardOnStart;
+    private boolean screenCapturingFeatureEnabled = true;
+    private boolean logsCapturingFeatureEnabled = true;
 
     private final AtomicBoolean mUsed = new AtomicBoolean(false);
 
     /**
-     * Constructor
-     * @param fileProviderAuthority        the file provider authority.
-     *                                     If {@literal null}, file sharing will not be available
-     * @param maoniWorkingDir                the working directory for Maoni.
-     *                                       Will default to the caller activity cache directory if none was specified.
-     *                                       This is where screenshots are typically stored.
-     * @param windowTitle                  the feedback window title
-     * @param windowSubTitle                the feedback window sub-title
-     * @param windowTitleTextColor          the feedback window title text color
-     *                                      (use {@literal null} for the default)
-     * @param windowSubTitleTextColor       the feedback window sub-title text color
-     *                                      (use {@literal null} for the default)
-     * @param theme                        the theme to apply
-     * @param header                       the header image
-     * @param message                      the feedback form field error message to display to the user
-     * @param feedbackContentHint          the feedback form field hint message
-     * @param contentErrorMessage          the feedback form field error message to display to the user
-     * @param extraLayout                  the extra layout resource.
-     * @param includeLogsText              the text do display next to the "Include logs" checkbox
-     * @param hideLogsOption               whether to show or hide "Include logs" checkbox
-     * @param includeScreenshotText        the text do display next to the "Include screenshot" checkbox
-     * @param touchToPreviewScreenshotText the "Touch to preview" text
-     * @param screenshotHint               the text to display to the user
+     * Default constructor: non-instantiable
      */
-    public Maoni(
-            @Nullable String fileProviderAuthority,
-            @Nullable final File maoniWorkingDir,
-            @Nullable final CharSequence windowTitle,
-            @Nullable final CharSequence windowSubTitle,
-            @ColorRes @Nullable final Integer windowTitleTextColor,
-            @ColorRes @Nullable final Integer windowSubTitleTextColor,
-            @StyleRes @Nullable final Integer theme,
-            @DrawableRes @Nullable final Integer header,
-            @Nullable final CharSequence message,
-            @Nullable final CharSequence feedbackContentHint,
-            @Nullable final CharSequence contentErrorMessage,
-            @LayoutRes @Nullable final Integer extraLayout,
-            @Nullable final CharSequence includeLogsText,
-            @Nullable final Boolean hideLogsOption,
-            @Nullable final Boolean hideScreenshotOption,
-            @Nullable final Boolean showingKeyboardOnStart,
-            @Nullable final CharSequence includeScreenshotText,
-            @Nullable final CharSequence touchToPreviewScreenshotText,
-            @Nullable final CharSequence screenshotHint) {
+    @SuppressWarnings("unused")
+    private Maoni() {
+        throw new UnsupportedOperationException("Non instantiable this way. Use Maoni.Builder builder class instead.");
+    }
 
-        this.fileProviderAuthority = fileProviderAuthority;
-        this.windowSubTitle = windowSubTitle;
-        this.windowTitleTextColor = windowTitleTextColor;
-        this.windowSubTitleTextColor = windowSubTitleTextColor;
-        this.theme = theme;
-        this.windowTitle = windowTitle;
-        this.message = message;
-        this.contentErrorMessage = contentErrorMessage;
-        this.feedbackContentHint = feedbackContentHint;
-        this.screenshotHint = screenshotHint;
-        this.header = header;
-        this.includeLogsText = includeLogsText;
-        this.hideLogsOption = hideLogsOption;
-        this.hideScreenshotOption = hideScreenshotOption;
-        this.showingKeyboardOnStart = showingKeyboardOnStart;
-        this.includeScreenshotText = includeScreenshotText;
-        this.touchToPreviewScreenshotText = touchToPreviewScreenshotText;
-        this.extraLayout = extraLayout;
-        this.maoniWorkingDir = maoniWorkingDir;
+    /**
+     * Constructor
+     * @param builder the builder instance to use for instantiated a Maoni instance
+     */
+    private Maoni(final Builder builder) {
+        this.context = builder.context;
+        this.sharedPreferencesContentMap = builder.sharedPreferences;
+        this.fileProviderAuthority = builder.fileProviderAuthority;
+        this.windowSubTitle = builder.windowSubTitle;
+        this.windowTitleTextColor = builder.windowTitleTextColor;
+        this.windowSubTitleTextColor = builder.windowSubTitleTextColor;
+        this.theme = builder.theme;
+        this.windowTitle = builder.windowTitle;
+        this.message = builder.message;
+        this.contentErrorMessage = builder.contentErrorMessage;
+        this.feedbackContentHint = builder.feedbackContentHint;
+        this.screenshotHint = builder.screenshotHint;
+        this.header = builder.header;
+        this.includeLogsText = builder.includeLogsText;
+        this.includeScreenshotText = builder.includeScreenshotText;
+        this.touchToPreviewScreenshotText = builder.touchToPreviewScreenshotText;
+        this.extraLayout = builder.extraLayout;
+        this.maoniWorkingDir = builder.maoniWorkingDir;
+        this.showKeyboardOnStart = builder.showKeyboardOnStart;
+        this.screenCapturingFeatureEnabled = builder.screenCapturingFeatureEnabled;
+        this.logsCapturingFeatureEnabled = builder.logsCapturingFeatureEnabled;
     }
 
     /**
@@ -306,17 +280,33 @@ public class Maoni {
 
         maoniIntent.putExtra(FILE_PROVIDER_AUTHORITY, fileProviderAuthority);
 
+        maoniIntent.putExtra(SHOW_KEYBOARD_ON_START, showKeyboardOnStart);
+
         maoniIntent.putExtra(WORKING_DIR,
                 maoniWorkingDir != null ?
-                        maoniWorkingDir : callerActivity.getCacheDir().getAbsolutePath());
+                        maoniWorkingDir.getAbsolutePath() : callerActivity.getCacheDir().getAbsolutePath());
 
-        //Create screenshot file
-        final File screenshotFile = new File(
-                maoniWorkingDir != null ? maoniWorkingDir : callerActivity.getCacheDir(),
+        maoniIntent.putExtra(SCREEN_CAPTURING_FEATURE_ENABLED, screenCapturingFeatureEnabled);
+        if (this.screenCapturingFeatureEnabled) {
+            //Create screenshot file
+            final File screenshotFile = new File(maoniWorkingDir != null ? maoniWorkingDir : callerActivity.getCacheDir(),
                 MAONI_FEEDBACK_SCREENSHOT_FILENAME);
-        ViewUtils.exportViewToFile(callerActivity,
-                callerActivity.getWindow().getDecorView(), screenshotFile);
-        maoniIntent.putExtra(SCREENSHOT_FILE, screenshotFile.getAbsolutePath());
+            ViewUtils.exportViewToFile(callerActivity, callerActivity.getWindow().getDecorView(),
+                screenshotFile);
+            maoniIntent.putExtra(SCREENSHOT_FILE, screenshotFile.getAbsolutePath());
+
+            if (screenshotHint != null) {
+                maoniIntent.putExtra(SCREENSHOT_HINT, screenshotHint);
+            }
+
+            if (includeScreenshotText != null) {
+                maoniIntent.putExtra(INCLUDE_SCREENSHOT_TEXT, includeScreenshotText);
+            }
+
+            if (touchToPreviewScreenshotText != null) {
+                maoniIntent.putExtra(SCREENSHOT_TOUCH_TO_PREVIEW_HINT, touchToPreviewScreenshotText);
+            }
+        }
 
         maoniIntent.putExtra(CALLER_ACTIVITY, callerActivity.getClass().getCanonicalName());
 
@@ -360,44 +350,31 @@ public class Maoni {
             maoniIntent.putExtra(CONTENT_ERROR_TEXT, contentErrorMessage);
         }
 
-        if (screenshotHint != null) {
-            maoniIntent.putExtra(SCREENSHOT_HINT, screenshotHint);
+        maoniIntent.putExtra(LOGS_CAPTURING_FEATURE_ENABLED, logsCapturingFeatureEnabled);
+        if (logsCapturingFeatureEnabled) {
+            if (includeLogsText != null) {
+                maoniIntent.putExtra(INCLUDE_LOGS_TEXT, includeLogsText);
+            }
         }
 
-        if (includeScreenshotText != null) {
-            maoniIntent.putExtra(INCLUDE_SCREENSHOT_TEXT, includeScreenshotText);
-        }
-
-        if (includeLogsText != null) {
-            maoniIntent.putExtra(INCLUDE_LOGS_TEXT, includeLogsText);
-        }
-
-        maoniIntent.putExtra(HIDE_LOGS_OPTION, hideLogsOption);
-
-        maoniIntent.putExtra(HIDE_SCREENSHOT_OPTION, hideScreenshotOption);
-
-        maoniIntent.putExtra(SHOW_KEYBOARD_ON_START, showingKeyboardOnStart);
-
-        if (touchToPreviewScreenshotText != null) {
-            maoniIntent.putExtra(SCREENSHOT_TOUCH_TO_PREVIEW_HINT, touchToPreviewScreenshotText);
-        }
+        maoniIntent.putExtra(SHARED_PREFERENCES, sharedPreferencesContentMap);
 
         callerActivity.startActivity(maoniIntent);
     }
 
 
     public Maoni unregisterListener() {
-        getInstance().setListener(null);
+        getInstance(context).setListener(null);
         return this;
     }
 
     public Maoni unregisterUiListener() {
-        getInstance().setUiListener(null);
+        getInstance(context).setUiListener(null);
         return this;
     }
 
     public Maoni unregisterValidator() {
-        getInstance().setValidator(null);
+        getInstance(context).setValidator(null);
         return this;
     }
 
@@ -415,6 +392,9 @@ public class Maoni {
      * Maoni Builder
      */
     public static class Builder {
+
+        @Nullable
+        private final Context context;
 
         @Nullable
         private final String fileProviderAuthority;
@@ -447,18 +427,19 @@ public class Maoni {
         @Nullable
         private CharSequence includeScreenshotText;
         @Nullable
-        private Boolean hideLogsOption;
-        @Nullable
-        private Boolean hideScreenshotOption;
-        @Nullable
-        private Boolean showingKeyboardOnStart;
-        @Nullable
         private CharSequence includeLogsText;
         @Nullable
         private CharSequence touchToPreviewScreenshotText;
         @LayoutRes
         @Nullable
         private Integer extraLayout;
+
+        private boolean showKeyboardOnStart;
+        private boolean screenCapturingFeatureEnabled = true;
+        private boolean logsCapturingFeatureEnabled = true;
+
+        @NonNull
+        private HashMap<String, Object> sharedPreferences = new HashMap<>();
 
         /**
          * Constructor
@@ -467,12 +448,19 @@ public class Maoni {
          *                              If {@literal null}, screenshot file sharing will not be available
          */
         public Builder(@Nullable final String fileProviderAuthority) {
-            this.fileProviderAuthority = fileProviderAuthority;
+            this(null, fileProviderAuthority);
         }
 
-        @Nullable
-        public File getMaoniWorkingDir() {
-            return maoniWorkingDir;
+        /**
+         * Constructor
+         *
+         * @param context the context
+         * @param fileProviderAuthority the file provider authority.
+         *                              If {@literal null}, screenshot file sharing will not be available
+         */
+        public Builder(@Nullable final Context context, @Nullable final String fileProviderAuthority) {
+            this.fileProviderAuthority = fileProviderAuthority;
+            this.context = context;
         }
 
         public Builder withMaoniWorkingDir(@Nullable File maoniWorkingDir) {
@@ -480,19 +468,9 @@ public class Maoni {
             return this;
         }
 
-        @Nullable
-        public Integer getTheme() {
-            return theme;
-        }
-
         public Builder withTheme(@StyleRes @Nullable Integer theme) {
             this.theme = theme;
             return this;
-        }
-
-        @Nullable
-        public CharSequence getWindowTitle() {
-            return windowTitle;
         }
 
         public Builder withWindowTitle(@Nullable CharSequence windowTitle) {
@@ -500,19 +478,9 @@ public class Maoni {
             return this;
         }
 
-        @Nullable
-        public CharSequence getWindowSubTitle() {
-            return windowSubTitle;
-        }
-
         public Builder withWindowSubTitle(@Nullable CharSequence windowSubTitle) {
             this.windowSubTitle = windowSubTitle;
             return this;
-        }
-
-        @Nullable
-        public Integer getWindowTitleTextColor() {
-            return windowTitleTextColor;
         }
 
         public Builder withWindowTitleTextColor(@ColorRes @Nullable Integer windowTitleTextColor) {
@@ -520,19 +488,9 @@ public class Maoni {
             return this;
         }
 
-        @Nullable
-        public Integer getWindowSubTitleTextColor() {
-            return windowSubTitleTextColor;
-        }
-
         public Builder withWindowSubTitleTextColor(@ColorRes @Nullable Integer windowSubTitleTextColor) {
             this.windowSubTitleTextColor = windowSubTitleTextColor;
             return this;
-        }
-
-        @Nullable
-        public Integer getExtraLayout() {
-            return extraLayout;
         }
 
         public Builder withExtraLayout(@LayoutRes @Nullable Integer extraLayout) {
@@ -540,19 +498,9 @@ public class Maoni {
             return this;
         }
 
-        @Nullable
-        public CharSequence getFeedbackContentHint() {
-            return feedbackContentHint;
-        }
-
         public Builder withFeedbackContentHint(@Nullable CharSequence feedbackContentHint) {
             this.feedbackContentHint = feedbackContentHint;
             return this;
-        }
-
-        @Nullable
-        public CharSequence getIncludeLogText() {
-            return includeLogsText;
         }
 
         public Builder withIncludeLogsText(@Nullable CharSequence includeLogsText) {
@@ -560,44 +508,11 @@ public class Maoni {
             return this;
         }
 
-        public Boolean getHideLogsOption() {
-            return hideLogsOption;
-        }
-
-        public Builder hidingLogsOption() {
-            this.hideLogsOption = true;
-            return this;
-        }
-
-        public Boolean getHideScreenshotOption() {
-            return hideScreenshotOption;
-        }
-
-        public Builder hidingScreenshot() {
-            this.hideScreenshotOption = true;
-            return this;
-        }
-
-        public Boolean getShowKeyboardOnStart() {
-            return showingKeyboardOnStart;
-        }
-
-        public Builder showingKeyboardOnStart(Boolean showing) {
-            this.showingKeyboardOnStart = showing;
-            return this;
-        }
-
-        @Nullable
-        public CharSequence getIncludeScreenshotText() {
-            return includeScreenshotText;
-        }
-
         public Builder withIncludeScreenshotText(@Nullable CharSequence includeScreenshotText) {
             this.includeScreenshotText = includeScreenshotText;
             return this;
         }
 
-        @Nullable
         public CharSequence getTouchToPreviewScreenshotText() {
             return touchToPreviewScreenshotText;
         }
@@ -607,19 +522,9 @@ public class Maoni {
             return this;
         }
 
-        @Nullable
-        public CharSequence getMessage() {
-            return message;
-        }
-
         public Builder withMessage(@Nullable CharSequence message) {
             this.message = message;
             return this;
-        }
-
-        @Nullable
-        public CharSequence getContentErrorMessage() {
-            return contentErrorMessage;
         }
 
         public Builder withContentErrorMessage(@Nullable CharSequence contentErrorMessage) {
@@ -627,20 +532,81 @@ public class Maoni {
             return this;
         }
 
-        @DrawableRes
-        @Nullable
-        public Integer getHeader() {
-            return header;
-        }
-
         public Builder withHeader(@Nullable Integer header) {
             this.header = header;
             return this;
         }
 
-        @Nullable
-        public CharSequence getScreenshotHint() {
-            return screenshotHint;
+        public Builder showKeyboardOnStart(final boolean showKeyboardOnStart) {
+            this.showKeyboardOnStart = showKeyboardOnStart;
+            return this;
+        }
+
+        public Builder showKeyboardOnStart() {
+            return this.showKeyboardOnStart(true);
+        }
+
+        public Builder hideKeyboardOnStart() {
+            return this.showKeyboardOnStart(false);
+        }
+
+        public Builder disableScreenCapturingFeature() {
+            this.screenCapturingFeatureEnabled = false;
+            return this;
+        }
+
+        public Builder enableScreenCapturingFeature() {
+            this.screenCapturingFeatureEnabled = true;
+            return this;
+        }
+
+        public Builder withScreenCapturingFeature(final boolean screenCapturingFeature) {
+            if (screenCapturingFeature) {
+                this.enableScreenCapturingFeature();
+            } else {
+                this.disableScreenCapturingFeature();
+            }
+            return this;
+        }
+
+        public Builder disableLogsCapturingFeature() {
+            this.logsCapturingFeatureEnabled = false;
+            return this;
+        }
+
+        public Builder enableLogsCapturingFeature() {
+            this.logsCapturingFeatureEnabled = true;
+            return this;
+        }
+
+        public Builder withLogsCapturingFeature(final boolean logsCapturingFeature) {
+            if (logsCapturingFeature) {
+                this.enableLogsCapturingFeature();
+            } else {
+                this.disableLogsCapturingFeature();
+            }
+            return this;
+        }
+
+        public Builder disableCapturingFeature() {
+            this.disableLogsCapturingFeature();
+            this.disableScreenCapturingFeature();
+            return this;
+        }
+
+        public Builder enableCapturingFeature() {
+            this.enableLogsCapturingFeature();
+            this.enableScreenCapturingFeature();
+            return this;
+        }
+
+        public Builder withCapturingFeature(final boolean capturingFeature) {
+            if (capturingFeature) {
+                this.enableCapturingFeature();
+            } else {
+                this.disableCapturingFeature();
+            }
+            return this;
         }
 
         public Builder withScreenshotHint(@Nullable CharSequence screenshotHint) {
@@ -649,17 +615,17 @@ public class Maoni {
         }
 
         public Builder withValidator(@Nullable final Validator validator) {
-            getInstance().setValidator(validator);
+            getInstance(context).setValidator(validator);
             return this;
         }
 
         public Builder withListener(@Nullable final Listener listener) {
-            getInstance().setListener(listener);
+            getInstance(context).setListener(listener);
             return this;
         }
 
         public Builder withUiListener(@Nullable final UiListener uiListener) {
-            getInstance().setUiListener(uiListener);
+            getInstance(context).setUiListener(uiListener);
             return this;
         }
 
@@ -670,27 +636,93 @@ public class Maoni {
                     .withUiListener(handler);
         }
 
+        /**
+         * If no listener is set (i.e no call to {@link #withListener(Listener)}),
+         * {@link MaoniEmailListener} is used by default (provided {@link #context} is non-null).
+         * <p>
+         * This allows to configure the 'to' email addresses to use for the default listener.
+         * If {@link #withListener(Listener)} is called explicitly, then this
+         * method will have no effect at all.
+         * @param toAddresses the 'to' addresses
+         * @return this Builder
+         */
+        @SuppressLint("ApplySharedPref")
+        public Builder withDefaultToEmailAddress(@Nullable final String... toAddresses) {
+            if (context != null && toAddresses != null) {
+                context.getSharedPreferences(
+                    Maoni.class.getPackage().getName(),
+                    Context.MODE_PRIVATE)
+                    .edit()
+                    .putStringSet(DEFAULT_LISTENER_EMAIL_TO,
+                        new HashSet<>(Arrays.asList(toAddresses)))
+                    .commit();
+            }
+            return this;
+        }
+
+        /**
+         * Include SharedPreferences value map.
+         * <p>
+         * SharedPreferences files are opened with the default operating mode.
+         * @param sharedPreferences the names of each {@link android.content.SharedPreferences} file
+         * @return this Builder
+         */
+        public Builder withSharedPreferences(@Nullable final String... sharedPreferences) {
+            return this.withSharedPreferences(Context.MODE_PRIVATE, sharedPreferences);
+        }
+
+        /**
+         * Include SharedPreferences value map.
+         * @param mode Operating mode.  Use 0 or {@link Context#MODE_PRIVATE} for the
+         * default operation.
+         * @param sharedPreferences the names of each {@link android.content.SharedPreferences} file
+         * @return this Builder
+         */
+        public Builder withSharedPreferences(final int mode, @Nullable final String... sharedPreferences) {
+            if (sharedPreferences == null) {
+                return this;
+            }
+            final Map<String, Integer> sharedPreferencesModeMap = new HashMap<>();
+            for (final String sharedPreference : sharedPreferences) {
+                if (sharedPreference == null) {
+                    continue;
+                }
+                sharedPreferencesModeMap.put(sharedPreference, mode);
+            }
+            return this.withSharedPreferences(sharedPreferencesModeMap);
+        }
+
+        /**
+         * Include SharedPreferences value map.
+         * @param sharedPreferencesModeMap the map of {@link android.content.SharedPreferences} and their operating mode
+         * @return this builder
+         */
+        public Builder withSharedPreferences(@Nullable final Map<String, Integer> sharedPreferencesModeMap) {
+            if (sharedPreferencesModeMap == null || sharedPreferencesModeMap.isEmpty()) {
+                return this;
+            }
+            if (this.context == null) {
+                throw new IllegalArgumentException("A context is needed to load the shared preferences");
+            }
+            for (final Entry<String, Integer> entry : sharedPreferencesModeMap.entrySet()) {
+                final String sharedPreference = entry.getKey();
+                final Integer sharedPreferenceMode = entry.getValue();
+                if (sharedPreference == null || sharedPreferenceMode == null) {
+                    continue;
+                }
+                final Map<String, ?> sharedPreferencesContent = 
+                    this.context.getSharedPreferences(sharedPreference, sharedPreferenceMode).getAll();
+                for (final Entry<String, ?> sharedPreferencesContentEntry : sharedPreferencesContent.entrySet()) {
+                    this.sharedPreferences.put(
+                        "SharedPreferences/" + sharedPreference + "/" + sharedPreferencesContentEntry.getKey(),
+                        sharedPreferencesContentEntry.getValue());
+                }
+            }
+            return this;
+        }
+
         public Maoni build() {
-            return new Maoni(
-                    fileProviderAuthority,
-                    maoniWorkingDir,
-                    windowTitle,
-                    windowSubTitle,
-                    windowTitleTextColor,
-                    windowSubTitleTextColor,
-                    theme,
-                    header,
-                    message,
-                    feedbackContentHint,
-                    contentErrorMessage,
-                    extraLayout,
-                    includeLogsText,
-                    hideLogsOption,
-                    hideScreenshotOption,
-                    showingKeyboardOnStart,
-                    includeScreenshotText,
-                    touchToPreviewScreenshotText,
-                    screenshotHint);
+            return new Maoni(this);
         }
     }
 
@@ -711,13 +743,25 @@ public class Maoni {
         @Nullable
         private UiListener uiListener;
 
-        private CallbacksConfiguration() {
+        private CallbacksConfiguration(@Nullable final Context context) {
+            //Default listener comes from maoni-email
+            if (context != null) {
+                final Set<String> defaultToAddresses =
+                    context.getSharedPreferences(Maoni.class.getPackage().getName(),
+                        Context.MODE_PRIVATE)
+                        .getStringSet(DEFAULT_LISTENER_EMAIL_TO, new HashSet<String>());
+                this.listener =
+                    new MaoniEmailListener(context,
+                        defaultToAddresses.toArray(new String[defaultToAddresses.size()]));
+            } else {
+                Log.d(LOG_TAG, "context is NULL => no default listener configured");
+            }
         }
 
         @NonNull
-        public static CallbacksConfiguration getInstance() {
+        public static CallbacksConfiguration getInstance(@Nullable final Context context) {
             if (SINGLETON == null) {
-                SINGLETON = new CallbacksConfiguration();
+                SINGLETON = new CallbacksConfiguration(context);
             }
             return SINGLETON;
         }
@@ -755,6 +799,7 @@ public class Maoni {
             return this;
         }
 
+        @SuppressWarnings("UnusedReturnValue")
         public CallbacksConfiguration reset() {
             return this.setUiListener(null)
                     .setListener(null)

@@ -20,30 +20,23 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-targetCompatibility = JavaVersion.VERSION_1_8
-sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = '1.7'
+sourceCompatibility = '1.7'
 
-group = 'com.github.alexandre-g'
-version = '2.4.4'
+group = 'org.rm3l'
+version = '6.0.0'
 
 final homePath = System.properties['user.home']
 
-/*
- * This is to mark some artifacts (such as Android's) as provided
- * so that we don't get dependency conflicts
- */
-configurations {
-    provided
-    compile.extendsFrom provided
-}
-
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided 'com.google.android:android:4.1.1.4'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly ('com.google.android:android:4.1.1.4') {
+        exclude group: 'org.json', module: 'json'
+    }
 }
 
 
@@ -92,10 +85,10 @@ bintray {
 
         //noinspection GroovyAssignabilityCheck
         version {
-            name = '2.3.2'
+            name = '6.0.0'
             desc = 'Maoni Common'
             released = new Date()
-            vcsTag = '2.3.2'
+            vcsTag = '6.0.0'
         }
 
         publicDownloadNumbers = true

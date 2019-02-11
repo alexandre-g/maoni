@@ -25,23 +25,36 @@
 final homePath = System.properties['user.home']
 
 buildscript {
+    ext.kotlin_version = '1.2.30'
     repositories {
         jcenter()
+        mavenCentral()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.android.tools.build:gradle:3.2.0-alpha04'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
+        classpath 'com.github.triplet.gradle:play-publisher:1.2.0'
+        classpath 'com.uber:okbuck:0.34.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
+apply plugin: 'com.uber.okbuck'
+
 allprojects {
     repositories {
         jcenter()
-        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+        maven {
+            url 'https://maven.google.com'
+        }
+        //To activate temporarily, when waiting for Bintray to approve packages submitted to JCenter
+//        maven { url 'https://dl.bintray.com/rm3l/maven'}
     }
 }
 
@@ -49,12 +62,20 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+ext.getPlayStoreConfig = {
+  return file(homePath.toString() + "/.droid/PlayStore.keys.json")
+}
+
+ext.getDebugSigningConfig = {
+    return ['androiddebugkey', new File("${rootDir}/debug.keystore"), 'android', 'android']
+}
+
 ext.getReleaseSigningInfo = {
     android ->
-        def storeFile = ""
-        def storePassword = ""
-        def keyAlias = ""
-        def keyPassword = ""
+        def storeFile = null
+        def storePassword = null
+        def keyAlias = null
+        def keyPassword = null
 
         //Attempt to read keystore.properties file, if any first
         final propsFile = new File(homePath.toString() + "/.droid/", "maoni-keystore.properties")
@@ -69,12 +90,7 @@ ext.getReleaseSigningInfo = {
             keyAlias = props['keyAlias']
             keyPassword = props['keyPassword']
 
-        } else if (System.console() == null) {
-            storeFile = "UNDEFINED"
-            storePassword = "UNDEFINED"
-            keyAlias = "UNDEFINED"
-            keyPassword = "UNDEFINED"
-        } else {
+        } else if (System.console() != null) {
             storeFile = System.console().readLine("\nPlease enter path to keystore file: ")
             storeFile = new File(storeFile)
             storePassword = System.console().readPassword("\nPlease enter the store password: ")
@@ -82,19 +98,36 @@ ext.getReleaseSigningInfo = {
             keyPassword = System.console().readPassword("\nPlease enter the key password: ")
         }
 
-        if (storeFile == null) {
-            throw new InvalidUserDataException("Keystore path not specified or file does not exist")
-        }
-
-        if (keyAlias.size() <= 0) {
-            throw new InvalidUserDataException("You must enter the key alias to proceed.")
-        }
-
-        if (storePassword.size() <= 0 || keyPassword.size() <= 0) {
-            throw new InvalidUserDataException("You must enter both the store and key passwords to proceed.")
-        }
-
         return [storeFile, storePassword, keyAlias, keyPassword]
 
 }
 
+subprojects { project ->
+    afterEvaluate {
+        if (project.plugins.hasPlugin("java")) {
+            addCommonConfigurationForJavaModules(project)
+        }
+//        else if (project.plugins.hasPlugin("com.android.application")
+//                || project.plugins.hasPlugin("com.android.library")) {
+//            addCommonConfigurationForAndroidModules(project)
+//        }
+
+        project.tasks.withType(Test) { Test task ->
+            task.jvmArgs << "-Djava.awt.headless=true"
+        }
+    }
+}
+
+static def addCommonConfigurationForJavaModules(Project project) {
+    project.sourceCompatibility = JavaVersion.VERSION_1_7
+    project.targetCompatibility = JavaVersion.VERSION_1_7
+}
+
+okbuck {
+    lint {
+        disabled = true
+    }
+    buildToolVersion = "27.0.3"
+    target = "android-27"
+    buckProjects = project.subprojects
+}

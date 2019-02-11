@@ -1,0 +1,26 @@
+Manoi jest lekką biblioteką Open-Source dla integracji sposobu uzyskiwania opinii użytkowników z aplikacji Android, oraz zwiększenie zadowolenia klienta.
+
+Zbudowany od podstaw z zasadami projektowania materiałów w głowie, pozwala przechwycić zrzut ekranu aktywności, którą użytkownik aktualnie wyświetla i dołączyć go do opinii.
+
+Jedyne co potrzebujesz zrobić, to zapewnić implementacje wywołań zwrotnych.
+Maoni będzie dbać o zbieranie opinii użytkowników i wywołać tę implementacje.
+
+Poniżej przedstawiono krótkie omówienie funkcji:
+
+- Informacje kontekstowe. Informacje na temat urządzenia i aplikacji, jeżeli są dostępne.
+ --Rozdzielczość ekranu urządzenia, dane mobilne i stany GPS, ...
+
+- Zrzut ekranu i zapisywanie logów.
+ -- Ponieważ otrzymywanie opinii z informacjami kontekstowymi jest znacznie lepsze dla analizy, Maoni pozwala na przechwytywanie ekranu wywołującego działania, a także logi aplikacji. Należy zauwyażyć, że włączenie takich zrzutów ekranu jaki logów w opinie informacji zwrotnej obiektu zależy od użytkownika.
+ -- Dotknij aby uzyskać podgląd zrzutu ekranu
+ -- Możliwość dla użytkowników twojej aplikacji, aby podkreślić lub skreślić obiekty w przechwytywaniu ekranu. Oni mogą wybrać aby zaznaczyć odpowiednie elementy i wymazać poufne informacje.
+
+- Dostosowanie.
+ -- Oprócz domyślnych pól formularza, możesz dołączyć ekstra układ z dodatkowymi widokami. Oraz zawsze będziesz posiadał dostęp do podstawowych elementów widoku.
+ -- Motywy elementów i style można regulować.
+
+- Wywołania zwrotne.
+ -- Walidacja formularza. Możesz stworzyć własny, jeżeli jest potrzebny na przykład dla dodatkowych pól.
+ -- Słuchacze. Po walidacji, Manoli wywołuje implementacje wywołań zwrotnych które podałeś/aś wcześniej. Więc masz nieograniczone możliwości integracji z innymi systemami.
+
+Kod Źródłowy: http://maoni.rm3l.org

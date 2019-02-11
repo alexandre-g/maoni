@@ -24,6 +24,8 @@ package org.rm3l.maoni.ui;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -33,10 +35,12 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,7 +52,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import java.io.File;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.UUID;
+import me.panavtec.drawableview.DrawableView;
+import me.panavtec.drawableview.DrawableViewConfig;
 import org.rm3l.maoni.Maoni.CallbacksConfiguration;
 import org.rm3l.maoni.R;
 import org.rm3l.maoni.common.contract.Listener;
@@ -57,59 +66,93 @@ import org.rm3l.maoni.common.contract.Validator;
 import org.rm3l.maoni.common.model.Feedback;
 import org.rm3l.maoni.utils.LogcatUtils;
 import org.rm3l.maoni.utils.ViewUtils;
-import org.rm3l.maoni.widgets.AppBarStateChangeListener;
-
-import java.io.File;
-import java.util.UUID;
-
-import me.panavtec.drawableview.DrawableView;
-import me.panavtec.drawableview.DrawableViewConfig;
 
 /**
  * Maoni Activity
  */
 public class MaoniActivity extends AppCompatActivity {
 
+    private static final String TAG = MaoniActivity.class.getSimpleName();
+
     public static final String APPLICATION_INFO_VERSION_CODE = "APPLICATION_INFO_VERSION_CODE";
+
     public static final String APPLICATION_INFO_VERSION_NAME = "APPLICATION_INFO_VERSION_NAME";
+
     public static final String APPLICATION_INFO_PACKAGE_NAME = "APPLICATION_INFO_PACKAGE_NAME";
+
     public static final String APPLICATION_INFO_BUILD_CONFIG_DEBUG =
             "APPLICATION_INFO_BUILD_CONFIG_DEBUG";
+
     public static final String APPLICATION_INFO_BUILD_CONFIG_FLAVOR =
             "APPLICATION_INFO_BUILD_CONFIG_FLAVOR";
+
     public static final String APPLICATION_INFO_BUILD_CONFIG_BUILD_TYPE =
             "APPLICATION_INFO_BUILD_CONFIG_BUILD_TYPE";
+
     public static final String WORKING_DIR = "WORKING_DIR";
+
     public static final String FILE_PROVIDER_AUTHORITY = "FILE_PROVIDER_AUTHORITY";
+
     public static final String THEME = "THEME";
+
     public static final String TOOLBAR_TITLE_TEXT_COLOR = "TOOLBAR_TITLE_TEXT_COLOR";
+
     public static final String TOOLBAR_SUBTITLE_TEXT_COLOR = "TOOLBAR_SUBTITLE_TEXT_COLOR";
+
     public static final String SCREENSHOT_FILE = "SCREENSHOT_FILE";
+
     public static final String CALLER_ACTIVITY = "CALLER_ACTIVITY";
+
     public static final String WINDOW_TITLE = "WINDOW_TITLE";
+
     public static final String WINDOW_SUBTITLE = "WINDOW_SUBTITLE";
+
     public static final String MESSAGE = "MESSAGE";
+
     public static final String HEADER = "HEADER";
+
     public static final String SCREENSHOT_HINT = "SCREENSHOT_HINT";
+
     public static final String CONTENT_HINT = "CONTENT_HINT";
+
     public static final String CONTENT_ERROR_TEXT = "CONTENT_ERROR_TEXT";
+
     public static final String SCREENSHOT_TOUCH_TO_PREVIEW_HINT = "SCREENSHOT_PREVIEW_HINT";
+
     public static final String INCLUDE_LOGS_TEXT = "INCLUDE_LOGS_TEXT";
-    public static final String HIDE_LOGS_OPTION = "HIDE_LOGS_OPTION";
-    public static final String HIDE_SCREENSHOT_OPTION = "HIDE_SCREENSHOT_OPTION";
-    public static final String SHOW_KEYBOARD_ON_START = "SHOW_KEYBOARD_ON_START";
+
     public static final String INCLUDE_SCREENSHOT_TEXT = "INCLUDE_SCREENSHOT_TEXT";
+
     public static final String EXTRA_LAYOUT = "EXTRA_LAYOUT";
+
+    public static final String SHOW_KEYBOARD_ON_START = "SHOW_KEYBOARD_ON_START";
+
+    public static final String SCREEN_CAPTURING_FEATURE_ENABLED = "SCREEN_CAPTURING_FEATURE_ENABLED";
+
+    public static final String LOGS_CAPTURING_FEATURE_ENABLED = "LOGS_CAPTURING_FEATURE_ENABLED";
+
+    public static final String SHARED_PREFERENCES = "SHARED_PREFS";
 
     private static final String MAONI_LOGS_FILENAME = "maoni_logs.txt";
 
     protected View mRootView;
 
-    @Nullable
-    private TextInputLayout mContentInputLayout;
+    private Feedback.App mAppInfo;
+
+    private int mBlackoutColor;
 
     @Nullable
     private EditText mContent;
+
+    @Nullable
+    private CharSequence mContentErrorText;
+
+    @Nullable
+    private TextInputLayout mContentInputLayout;
+
+    private String mFeedbackUniqueId;
+
+    private int mHighlightColor;
 
     @Nullable
     private CheckBox mIncludeLogs;
@@ -117,26 +160,24 @@ public class MaoniActivity extends AppCompatActivity {
     @Nullable
     private CheckBox mIncludeScreenshot;
 
-    @Nullable
-    private CharSequence mScreenshotFilePath;
+    private Listener mListener;
 
-    @Nullable
-    private CharSequence mContentErrorText;
-
-    private File mWorkingDir;
+    private boolean mLogsCapturingFeatureEnabled;
 
     private Menu mMenu;
 
-    private String mFeedbackUniqueId;
-    private Feedback.App mAppInfo;
+    private boolean mScreenCapturingFeatureEnabled;
+
+    @Nullable
+    private CharSequence mScreenshotFilePath;
+
+    private HashMap<String, Object> mSharedPreferences;
+
+    private boolean mShowKeyboardOnStart;
 
     private Validator mValidator;
-    private Listener mListener;
 
-    private int mHighlightColor;
-    private int mBlackoutColor;
-
-    private Boolean showKeyboardOnStart;
+    private File mWorkingDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +202,12 @@ public class MaoniActivity extends AppCompatActivity {
         if (intent.hasExtra(WORKING_DIR)) {
             mWorkingDir = new File(intent.getStringExtra(WORKING_DIR));
         } else {
-            mWorkingDir =  getCacheDir();
+            mWorkingDir = getCacheDir();
+        }
+
+        if (intent.hasExtra(SHARED_PREFERENCES)) {
+            //noinspection unchecked
+            mSharedPreferences = (HashMap<String, Object>) intent.getSerializableExtra(SHARED_PREFERENCES);
         }
 
         final ImageView headerImageView = (ImageView) findViewById(R.id.maoni_toolbar_header_image);
@@ -185,8 +231,7 @@ public class MaoniActivity extends AppCompatActivity {
             }
         }
 
-        final CallbacksConfiguration maoniConfiguration = CallbacksConfiguration.getInstance();
-
+        final CallbacksConfiguration maoniConfiguration = CallbacksConfiguration.getInstance(this);
         mListener = maoniConfiguration.getListener();
         mValidator = maoniConfiguration.getValidator();
 
@@ -250,43 +295,62 @@ public class MaoniActivity extends AppCompatActivity {
         }
 
         mIncludeLogs = (CheckBox) findViewById(R.id.maoni_include_logs);
-        Boolean hideLogsCheckbox = intent.getBooleanExtra(HIDE_LOGS_OPTION, false);
-        if (hideLogsCheckbox) {
-            mIncludeLogs.setVisibility(View.GONE);
-        } else {
-            if (mIncludeLogs != null && intent.hasExtra(INCLUDE_LOGS_TEXT)) {
-                mIncludeLogs.setText(intent.getCharSequenceExtra(INCLUDE_LOGS_TEXT));
-            }
+        if (mIncludeLogs != null && intent.hasExtra(INCLUDE_LOGS_TEXT)) {
+            mIncludeLogs.setText(intent.getCharSequenceExtra(INCLUDE_LOGS_TEXT));
         }
 
         mIncludeScreenshot = (CheckBox) findViewById(R.id.maoni_include_screenshot);
-        Boolean hideScreenshot = intent.getBooleanExtra(HIDE_SCREENSHOT_OPTION, false);
-        if (hideScreenshot) {
-            mIncludeScreenshot.setVisibility(View.GONE);
-            findViewById(R.id.maoni_screenshot).setVisibility(View.GONE);
-            findViewById(R.id.maoni_include_screenshot_content).setVisibility(View.GONE);
-            findViewById(R.id.maoni_screenshot_touch_to_preview).setVisibility(View.GONE);
-        } else {
-            if (mIncludeScreenshot != null && intent.hasExtra(INCLUDE_SCREENSHOT_TEXT)) {
-                mIncludeScreenshot.setText(intent.getCharSequenceExtra(INCLUDE_SCREENSHOT_TEXT));
-            }
-
-            mScreenshotFilePath = intent.getCharSequenceExtra(SCREENSHOT_FILE);
-            initScreenCaptureView(intent);
+        if (mIncludeScreenshot != null && intent.hasExtra(INCLUDE_SCREENSHOT_TEXT)) {
+            mIncludeScreenshot.setText(intent.getCharSequenceExtra(INCLUDE_SCREENSHOT_TEXT));
         }
 
-        showKeyboardOnStart = intent.getBooleanExtra(SHOW_KEYBOARD_ON_START, true);
+        mScreenshotFilePath = intent.getCharSequenceExtra(SCREENSHOT_FILE);
+
+        mShowKeyboardOnStart = intent.getBooleanExtra(SHOW_KEYBOARD_ON_START, false);
+
+        mScreenCapturingFeatureEnabled = intent.getBooleanExtra(SCREEN_CAPTURING_FEATURE_ENABLED, true);
+        final Integer[] screenCapturingRelatedFields = new Integer[]{
+                R.id.maoni_include_screenshot,
+                R.id.maoni_include_screenshot_content
+        };
+        if (mScreenCapturingFeatureEnabled) {
+            initScreenCaptureView(intent);
+        }
+        final int visibilityForScreenCapturingRelatedFields = (mScreenCapturingFeatureEnabled ?
+                View.VISIBLE : View.GONE);
+        for (final Integer screenCapturingRelatedField : screenCapturingRelatedFields) {
+            final View view = findViewById(screenCapturingRelatedField);
+            if (view == null) {
+                continue;
+            }
+            view.setVisibility(visibilityForScreenCapturingRelatedFields);
+        }
+
+        mLogsCapturingFeatureEnabled = intent.getBooleanExtra(LOGS_CAPTURING_FEATURE_ENABLED, true);
+        final Integer[] logsCapturingRelatedFields = new Integer[]{
+                R.id.maoni_include_logs
+        };
+        final int visibilityForLogsCapturingRelatedFields = (mLogsCapturingFeatureEnabled ?
+                View.VISIBLE : View.GONE);
+        for (final Integer logsCapturingRelatedField : logsCapturingRelatedFields) {
+            final View view = findViewById(logsCapturingRelatedField);
+            if (view == null) {
+                continue;
+            }
+            view.setVisibility(visibilityForLogsCapturingRelatedFields);
+        }
 
         mFeedbackUniqueId = UUID.randomUUID().toString();
 
         final View fab = findViewById(R.id.maoni_fab);
-        if (fab != null)
+        if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     validateAndSubmitForm();
                 }
             });
+        }
 
         setAppRelatedInfo();
 
@@ -299,14 +363,59 @@ public class MaoniActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!showKeyboardOnStart)
+        if (!mShowKeyboardOnStart) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        CallbacksConfiguration.getInstance(this).reset();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mListener != null) {
+            mListener.onDismiss();
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.maoni_activity_menu, menu);
+        this.mMenu = menu;
+        final AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.maoni_app_bar);
+        appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+            @Override
+            public void onStateChanged(AppBarLayout appBarLayout, State state) {
+                final MenuItem item = mMenu.findItem(R.id.maoni_feedback_send);
+                if (item != null) {
+                    item.setVisible(state != State.EXPANDED);
+                }
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public final boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        final int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            onBackPressed();
+        } else if (itemId == R.id.maoni_feedback_send) {
+            validateAndSubmitForm();
+        }
+        return true;
     }
 
     private void initScreenCaptureView(@NonNull final Intent intent) {
-        final ImageButton screenshotThumb = (ImageButton) findViewById(R.id.maoni_screenshot);
+        final ImageButton screenshotThumb = (ImageButton)
+                findViewById(R.id.maoni_screenshot);
 
-        final TextView touchToPreviewTextView = (TextView) findViewById(R.id.maoni_screenshot_touch_to_preview);
+        final TextView touchToPreviewTextView =
+                (TextView) findViewById(R.id.maoni_screenshot_touch_to_preview);
         if (touchToPreviewTextView != null && intent.hasExtra(SCREENSHOT_TOUCH_TO_PREVIEW_HINT)) {
             touchToPreviewTextView.setText(
                     intent.getCharSequenceExtra(SCREENSHOT_TOUCH_TO_PREVIEW_HINT));
@@ -362,13 +471,14 @@ public class MaoniActivity extends AppCompatActivity {
                             imageView.setImageURI(Uri.fromFile(file));
 
                             final DrawableView drawableView = (DrawableView)
-                                    imagePreviewDialog.findViewById(R.id.maoni_screenshot_preview_image_drawable_view);
+                                    imagePreviewDialog
+                                            .findViewById(R.id.maoni_screenshot_preview_image_drawable_view);
                             final DrawableViewConfig config = new DrawableViewConfig();
                             // If the view is bigger than canvas, with this the user will see the bounds
                             config.setShowCanvasBounds(true);
                             config.setStrokeWidth(57.0f);
                             config.setMinZoom(1.0f);
-                            config.setMaxZoom(3.0f);
+                            config.setMaxZoom(1.0f);
                             config.setStrokeColor(mHighlightColor);
                             final View decorView = getWindow().getDecorView();
                             config.setCanvasWidth(decorView.getWidth());
@@ -406,7 +516,8 @@ public class MaoniActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(View view) {
                                             ViewUtils.exportViewToFile(MaoniActivity.this,
-                                                    imagePreviewDialog.findViewById(R.id.maoni_screenshot_preview_image_view_updated),
+                                                    imagePreviewDialog.findViewById(
+                                                            R.id.maoni_screenshot_preview_image_view_updated),
                                                     new File(mScreenshotFilePath.toString()));
                                             initScreenCaptureView(intent);
                                             imagePreviewDialog.dismiss();
@@ -438,30 +549,6 @@ public class MaoniActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        CallbacksConfiguration.getInstance().reset();
-        super.onDestroy();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.maoni_activity_menu, menu);
-        this.mMenu = menu;
-
-        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.maoni_app_bar);
-        appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
-            @Override
-            public void onStateChanged(AppBarLayout appBarLayout, State state) {
-                final MenuItem item = mMenu.findItem(R.id.maoni_feedback_send);
-                if (item != null)
-                    item.setVisible(state != State.EXPANDED);
-            }
-        });
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
     private void setAppRelatedInfo() {
 
         final Intent intent = getIntent();
@@ -476,6 +563,83 @@ public class MaoniActivity extends AppCompatActivity {
                 intent.getStringExtra(APPLICATION_INFO_BUILD_CONFIG_BUILD_TYPE),
                 intent.hasExtra(APPLICATION_INFO_VERSION_NAME) ?
                         intent.getStringExtra(APPLICATION_INFO_VERSION_NAME) : null);
+    }
+
+    private void validateAndSubmitForm() {
+        //Validate form
+        if (this.validateForm(mRootView)) {
+            //TODO Check that device is actually connected to the internet prior to going any further
+            boolean includeScreenshot = false;
+            if (mScreenCapturingFeatureEnabled && mIncludeScreenshot != null) {
+                includeScreenshot = mIncludeScreenshot.isChecked();
+            }
+            String contentText = "";
+            if (mContent != null) {
+                contentText = mContent.getText().toString();
+            }
+
+            final Intent intent = getIntent();
+
+            Uri screenshotUri = null;
+            File screenshotFile = null;
+            Uri logsUri = null;
+            File logsFile = null;
+
+            final boolean includeLogs = mLogsCapturingFeatureEnabled &&
+                    mIncludeLogs != null && mIncludeLogs.isChecked();
+            if (includeLogs) {
+                logsFile = new File(
+                        mWorkingDir,
+                        MAONI_LOGS_FILENAME);
+                LogcatUtils.getLogsToFile(logsFile);
+            }
+
+            if (intent.hasExtra(FILE_PROVIDER_AUTHORITY)) {
+                final String fileProviderAuthority = intent.getStringExtra(FILE_PROVIDER_AUTHORITY);
+                //#11 : Potential NPE in Android's FileProvider if Provider Authority couldn't be resolved
+                final ProviderInfo providerAuthorityInfo = this.getPackageManager()
+                        .resolveContentProvider(fileProviderAuthority, PackageManager.GET_META_DATA);
+                if (providerAuthorityInfo == null) {
+                    Log.w(TAG, "Could not resolve file provider authority : "
+                            + fileProviderAuthority + ". Sharing of files captured not supported then. "
+                            + "See http://maoni.rm3l.org/ for setup instructions.");
+                } else {
+                    if (mScreenshotFilePath != null) {
+                        screenshotFile = new File(mScreenshotFilePath.toString());
+                        screenshotUri =
+                                FileProvider.getUriForFile(this, fileProviderAuthority, screenshotFile);
+                        grantUriPermission(intent.getComponent().getPackageName(), screenshotUri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
+                    if (logsFile != null) {
+                        logsUri = FileProvider.getUriForFile(this, fileProviderAuthority, logsFile);
+                        grantUriPermission(intent.getComponent().getPackageName(), logsUri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
+                }
+            }
+
+            //Construct the feedback object and call the actual implementation
+            final Feedback feedback =
+                    new Feedback(mFeedbackUniqueId,
+                            this,
+                            mAppInfo,
+                            contentText,
+                            includeScreenshot,
+                            screenshotUri,
+                            screenshotFile,
+                            includeLogs,
+                            logsUri,
+                            logsFile,
+                            mSharedPreferences);
+            if (mListener != null) {
+                if (mListener.onSendButtonClicked(feedback)) {
+                    finish();
+                } // else do *not* finish the activity
+            } else {
+                finish();
+            }
+        } //else do nothing - this is up to the callback implementation
     }
 
     private boolean validateForm(@NonNull View rootView) {
@@ -494,90 +658,6 @@ public class MaoniActivity extends AppCompatActivity {
         }
         //Call the validator implementation instead
         return mValidator == null || mValidator.validateForm(rootView);
-    }
-
-    @Override
-    public final boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        final int itemId = item.getItemId();
-        if (itemId == android.R.id.home) {
-            onBackPressed();
-        } else if (itemId == R.id.maoni_feedback_send) {
-            validateAndSubmitForm();
-        }
-        return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mListener != null) {
-            mListener.onDismiss();
-        }
-        super.onBackPressed();
-    }
-
-    private void validateAndSubmitForm() {
-        //Validate form
-        if (this.validateForm(mRootView)) {
-            //TODO Check that device is actually connected to the internet prior to going any further
-            boolean includeScreenshot = false;
-            if (mIncludeScreenshot != null) {
-                includeScreenshot = mIncludeScreenshot.isChecked();
-            }
-            String contentText = "";
-            if (mContent != null) {
-                contentText = mContent.getText().toString();
-            }
-
-            final Intent intent = getIntent();
-
-            Uri screenshotUri = null;
-            File screenshotFile = null;
-            Uri logsUri = null;
-            File logsFile = null;
-
-            final boolean includeLogs = mIncludeLogs != null && mIncludeLogs.isChecked();
-            if (includeLogs) {
-                logsFile = new File(
-                        mWorkingDir,
-                        MAONI_LOGS_FILENAME);
-                LogcatUtils.getLogsToFile(logsFile);
-            }
-
-            if (intent.hasExtra(FILE_PROVIDER_AUTHORITY)) {
-                final String fileProviderAuthority = intent.getStringExtra(FILE_PROVIDER_AUTHORITY);
-                if (mScreenshotFilePath != null) {
-                    screenshotFile = new File(mScreenshotFilePath.toString());
-                    //screenshotUri = FileProvider.getUriForFile(this, fileProviderAuthority, screenshotFile);
-                    //grantUriPermission(intent.getComponent().getPackageName(), screenshotUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                }
-                /*if (logsFile != null) {
-                    logsUri = FileProvider
-                            .getUriForFile(this, fileProviderAuthority, logsFile);
-                    grantUriPermission(intent.getComponent().getPackageName(),
-                            logsUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                }*/
-            }
-
-            //Construct the feedback object and call the actual implementation
-            final Feedback feedback =
-                    new Feedback(mFeedbackUniqueId,
-                            this,
-                            mAppInfo,
-                            contentText,
-                            includeScreenshot,
-                            screenshotUri,
-                            screenshotFile,
-                            includeLogs,
-                            logsUri,
-                            logsFile);
-            if (mListener != null) {
-                if (mListener.onSendButtonClicked(feedback)) {
-                    finish();
-                } // else do *not* finish the activity
-            } else {
-                finish();
-            }
-        } //else do nothing - this is up to the callback implementation
     }
 
 }

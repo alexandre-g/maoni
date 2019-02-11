@@ -1,0 +1,26 @@
+Maoni ist eine leichtgewichtige Open-Source Bibliothek für ein Weg einzubinden um Benutzer feedback von innerhalb Android Anwendungen zu sammeln, und Ihre Kundenfriedenheit zu erhöhen.
+
+Bauen Sie from Grund auf mit der Material Design Prinzipien im Gedanken, es erlaubt einen Screenshot zu erfassen von der Aktivität wessen der Benutzer gegenwärtig anseht und hängt es zum Feedback an.
+
+Bieten Sie nur Callback Implementierungen und Sie sind stark dran.
+Maoni wird auf das Sammeln Ihrer Benutzer Feedbacks aufpassen und sie implementierungen nennen.
+
+Unten ist ein schneller Überblick der Features behalten:
+
+- Kontextuell information. Gerät und Anwendungs Informationen, falls vorhanden.
+ -- Gerät Bildschirmauflösung, Mobile Daten und GPS Zustände, ...
+
+- Screenshot und logs erfassen.
+ -- Weil bekommen einer Feedback mit kontextuellen Information ist sehr sehr besser für Analysen, Maoni ermöglicht eine Bildschirmaufnahme von der Aktivität des Anrufes, zusammen mit den Anwendungslogs. Beachten Sie dass die Aufnahme solcher Bildschirmaufnahmen und logs im Feedback objekt opt-out ist, an die Benutzer Diskretion.
+ -- Für Screenshot Vorschau berühren
+ -- Möglichkeit für Ihre Benutzer Ihrer Anwendung ist die Artikeln in der Bildschirmaufnahme zu erhöhen oder auszusetzen. Sie können wählen um relevante Artikeln zu erhöhen oder jede sensitive Informatione aussetzen.
+
+- Anpassung.
+ -- Neden den Default form feldern, dürfen Sie einen extra Layout mit zusätzlichen Ansichten hinzufügen. Und Sie haben immer Zugriff zu den unterliegenden Ansichtselementen.
+ -- Thema Elemente und Styles können eingestellt werden.
+
+- Rückrufe.
+ -- Formularvalidierung. Wenn es erforderlich ist können Sie an sich selbst bieten zum Beispiel für Ihre extra Felder.
+ -- Zuhörer. Auf Bestätigung, Maoni ruft die Callbak Durchführungen die Sie gebietet haben früher. So haben Sie gleich unbegrenzte Möglichkeiten für eine Integration mit allen anderen Systemen.
+
+Quellencode: http://maoni.rm3l.org

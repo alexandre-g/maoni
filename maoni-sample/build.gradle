@@ -1,0 +1,227 @@
+/*
+ * Copyright (c) 2016 Armel Soro
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+//apply plugin: 'jacoco-android'
+apply plugin: 'com.github.triplet.play'
+
+Properties localProperties = new Properties()
+try {
+    localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+} catch (FileNotFoundException fnfe) {
+    //No worries
+    printf(fnfe.getClass().getSimpleName() + " : " + fnfe.getMessage() +
+        " => maoni-github callback will not be available!\n")
+}
+//maoni-github creds
+def ghUsername = localProperties.getProperty('github.username', "")
+def ghPasswordToken = localProperties.getProperty('github.passwordToken', "")
+
+//maoni-jira creds
+def jiraRestBaseUrl = localProperties.getProperty('jira.rest.baseUrl', "")
+def jiraUsername = localProperties.getProperty('jira.username', "")
+def jiraPassword = localProperties.getProperty('jira.password', "")
+
+//maoni-slack creds
+def slackWebhookUrl = localProperties.getProperty('slack.webhook.url', "")
+def slackChannel = localProperties.getProperty('slack.channel', "")
+def slackUsername = localProperties.getProperty('slack.username', "")
+def slackIconUrl = localProperties.getProperty('slack.icon.url', "")
+def slackEmojiIcon = localProperties.getProperty('slack.emoji.icon', "")
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+
+    playAccountConfigs {
+        defaultAccountConfig {
+            jsonFile = rootProject.getPlayStoreConfig()
+        }
+    }
+
+    signingConfigs {
+        debug {
+            (keyAlias, storeFile, storePassword, keyPassword) = rootProject.getDebugSigningConfig()
+        }
+        release {
+
+            def (store_file, store_password, key_alias, key_password) = rootProject.getReleaseSigningInfo(android)
+
+            if (key_alias != null) {
+                keyAlias key_alias
+            }
+            if (key_password != null) {
+                keyPassword key_password
+            }
+            if (store_file != null) {
+                storeFile store_file
+            }
+            if (store_password != null) {
+                storePassword store_password
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            //noinspection GroovyAssignabilityCheck
+            java.srcDirs = ['src/main/java']
+            //noinspection GroovyAssignabilityCheck
+            resources.srcDirs = ['src/main/res']
+            aidl.srcDirs = ['src/main/res']
+            renderscript.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['src/main/assets']
+        }
+
+        main.java.srcDirs += 'src/main/kotlin'
+
+//        // Move the tests to tests/java, tests/res, etc...
+//        instrumentTest.setRoot('src/androidTests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+
+    defaultConfig {
+        applicationId "org.rm3l.maoni.sample"
+        minSdkVersion 15
+        targetSdkVersion 27
+        versionCode 600
+        versionName "6.0.0"
+
+        vectorDrawables.useSupportLibrary = true
+
+        playAccountConfig = playAccountConfigs.defaultAccountConfig
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+
+            buildConfigField "String", "GITHUB_USERNAME", "\"${ghUsername}\""
+            buildConfigField "String", "GITHUB_PASSWORD_TOKEN", "\"${ghPasswordToken}\""
+
+            buildConfigField "String", "JIRA_REST_BASE_URL", "\"${jiraRestBaseUrl}\""
+            buildConfigField "String", "JIRA_USERNAME", "\"${jiraUsername}\""
+            buildConfigField "String", "JIRA_PASSWORD", "\"${jiraPassword}\""
+
+            buildConfigField "String", "SLACK_WEBHOOK_URL", "\"${slackWebhookUrl}\""
+            buildConfigField "String", "SLACK_CHANNEL", "\"${slackChannel}\""
+            buildConfigField "String", "SLACK_USERNAME", "\"${slackUsername}\""
+            buildConfigField "String", "SLACK_ICON_URL", "\"${slackIconUrl}\""
+            buildConfigField "String", "SLACK_EMOJI_ICON", "\"${slackEmojiIcon}\""
+
+            signingConfig signingConfigs.release
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled true
+            minifyEnabled false
+
+            buildConfigField "String", "GITHUB_USERNAME", "\"${ghUsername}\""
+            buildConfigField "String", "GITHUB_PASSWORD_TOKEN", "\"${ghPasswordToken}\""
+
+            buildConfigField "String", "JIRA_REST_BASE_URL", "\"${jiraRestBaseUrl}\""
+            buildConfigField "String", "JIRA_USERNAME", "\"${jiraUsername}\""
+            buildConfigField "String", "JIRA_PASSWORD", "\"${jiraPassword}\""
+
+            buildConfigField "String", "SLACK_WEBHOOK_URL", "\"${slackWebhookUrl}\""
+            buildConfigField "String", "SLACK_CHANNEL", "\"${slackChannel}\""
+            buildConfigField "String", "SLACK_USERNAME", "\"${slackUsername}\""
+            buildConfigField "String", "SLACK_ICON_URL", "\"${slackIconUrl}\""
+            buildConfigField "String", "SLACK_EMOJI_ICON", "\"${slackEmojiIcon}\""
+
+            zipAlignEnabled true
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+//        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.anko:anko-sdk25:0.10.4"
+    implementation "org.jetbrains.anko:anko-sdk25-listeners:0.10.4"
+    implementation "org.jetbrains.anko:anko:0.10.4"
+
+    implementation project(":maoni")
+    implementation project(":maoni-common")
+    implementation ('org.rm3l:maoni-email:3.1.0-maoni_6.0.0') {
+        //Exclude transitive dependency to 'maoni-common', as we are already using the version we have in this project
+        exclude group: 'org.rm3l', module: 'maoni-common'
+        exclude group: 'org.jetbrains.anko'
+    }
+    implementation ('org.rm3l:maoni-github:2.5.0-maoni_6.0.0') {
+        //Exclude transitive dependency to 'maoni-common', as we are already using the version we have in this project
+        exclude group: 'org.rm3l', module: 'maoni-common'
+        exclude group: 'org.jetbrains.anko'
+    }
+    implementation ('org.rm3l:maoni-jira:2.5.0-maoni_6.0.0') {
+        //Exclude transitive dependency to 'maoni-common', as we are already using the version we have in this project
+        exclude group: 'org.rm3l', module: 'maoni-common'
+        exclude group: 'org.jetbrains.anko'
+    }
+    implementation ('org.rm3l:maoni-slack:1.0.1-maoni_6.0.0') {
+        exclude group: 'org.rm3l', module: 'maoni-common'
+        exclude group: 'org.jetbrains.anko'
+    }
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.android.support:cardview-v7:27.1.0'
+    implementation 'com.facebook.stetho:stetho:1.5.0'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+    implementation('com.mikepenz:aboutlibraries:6.0.6@aar') {
+        transitive = true
+    }
+}
+
+play {
+    // ...
+    track = 'beta'
+    untrackOld = true // will un-track 'alpha' while upload to 'beta'
+
+    uploadImages = false
+    errorOnSizeLimit = false
+}

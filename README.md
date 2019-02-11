@@ -3,17 +3,42 @@
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Maoni-blue.svg?style=flat)](http://android-arsenal.com/details/1/3925)
 [![Website](https://img.shields.io/website-up-down-green-red/http/maoni.rm3l.org.svg)](http://maoni.rm3l.org)
-[![Codewake](https://www.codewake.com/badges/ask_question.svg)](https://www.codewake.com/p/maoni)
 [![Join the chat at https://gitter.im/rm3l/maoni](https://badges.gitter.im/rm3l/maoni.svg)](https://gitter.im/rm3l/maoni?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Travis branch](https://img.shields.io/travis/rm3l/maoni/master.svg)](https://travis-ci.org/rm3l/maoni)
-[![Code Climate](https://codeclimate.com/github/rm3l/maoni/badges/gpa.svg)](https://codeclimate.com/github/rm3l/maoni)
-[![Test Coverage](https://codeclimate.com/github/rm3l/maoni/badges/coverage.svg)](https://codeclimate.com/github/rm3l/maoni/coverage)
+[![CircleCI](https://circleci.com/gh/rm3l/maoni/tree/master.svg?style=svg)](https://circleci.com/gh/rm3l/maoni/tree/master)
 [![Issue Count](https://codeclimate.com/github/rm3l/maoni/badges/issue_count.svg)](https://codeclimate.com/github/rm3l/maoni)
 
 [![GitHub watchers](https://img.shields.io/github/watchers/rm3l/maoni.svg?style=social&label=Watch)](https://github.com/rm3l/maoni)
 [![GitHub stars](https://img.shields.io/github/stars/rm3l/maoni.svg?style=social&label=Star)](https://github.com/rm3l/maoni)
 [![GitHub forks](https://img.shields.io/github/forks/rm3l/maoni.svg?style=social&label=Fork)](https://github.com/rm3l/maoni)
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Motivations](#motivations)
+- [Sample App](#sample-app)
+- [Preview](#preview)
+- [Getting started](#getting-started)
+  - [Putting it together](#putting-it-together)
+    - [Available callbacks](#available-callbacks)
+      - [maoni-email](#maoni-email)
+      - [maoni-slack](#maoni-slack)
+      - [maoni-github](#maoni-github)
+      - [maoni-jira](#maoni-jira)
+      - [maoni-doorbell](#maoni-doorbell)
+    - [Sharing the files captured with other apps](#sharing-the-files-captured-with-other-apps)
+- [Contribute and Improve Maoni!](#contribute-and-improve-maoni)
+  - [Building from source](#building-from-source)
+  - [Translations](#translations)
+  - [Contributing callbacks for Maoni](#contributing-callbacks-for-maoni)
+- [In use in the following apps](#in-use-in-the-following-apps)
+- [Credits](#credits)
+- [Developed by](#developed-by)
+- [Contributors](#contributors)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 **Maoni** is a lightweight open-source library for integrating 
 a way to collect user feedbacks from within Android applications.
@@ -42,7 +67,13 @@ Below is a quick overview of the features included:
 - **Callbacks**.
     - Form validation. You can provide your own if needed for example for your extra fields.
     - Listeners. Upon validation, Maoni calls the callbacks implementations you provided earlier.
-    So you just have limitless possibilities for an integration with any other systems.
+    So you just have limitless possibilities for an integration with any remote feedback services. For reference, the following implementations are provided as external dependencies:
+        - [maoni-email](https://github.com/rm3l/maoni-email), so your users can send their feedback via email
+        - [maoni-slack](https://github.com/rm3l/maoni-slack), so your users can send their feedback to Slack
+        - [maoni-jira](https://github.com/rm3l/maoni-jira), to send your users' feedbacks as JIRA issues (to the JIRA host of your choice)
+        - [maoni-github](https://github.com/rm3l/maoni-github), to send your users' feedbacks as Github issues (to the Github repository of your choice)
+        - [maoni-doorbell](https://github.com/rm3l/maoni-doorbell), to send your users' feedbacks to [Doorbell.io](https://doorbell.io/home)
+       
 
 Take a look at the [sample application](https://play.google.com/store/apps/details?id=org.rm3l.maoni.sample) 
 for a quick overview.
@@ -73,7 +104,7 @@ By the way, as a side note, Maoni is a Swahili word for comments or opinions.
 </a>
 
 
-## Screenshots
+## Preview
 
 <img width="40%" src="https://raw.githubusercontent.com/rm3l/maoni/master/doc/screenshots/raw/maoni_2.3.1.gif"/>
     
@@ -94,8 +125,8 @@ Grab via Gradle, by adding this to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    compile ('org.rm3l:maoni:2.3.1@aar') {
-        transitive = true;
+    compile ('org.rm3l:maoni:6.0.0@aar') {
+        transitive = true
     }
   }
 ```
@@ -110,14 +141,10 @@ within your application workflow (for example a button click listener, or a touc
 
 For example, to start with just the defaults:
 ```java
-    // MyHandlerForMaoni is a custom implementation of Handler, 
-    // which is a shortcut interface for defining both a validator and listeners for Maoni
-    final MyHandlerForMaoni myHandlerForMaoni = new MyHandlerForMaoni(...);
-    
     //The optional file provider authority allows you to 
     //share the screenshot capture file to other apps (depending on your callback implementation)
-    new Maoni.Builder(MY_FILE_PROVIDER_AUTHORITY)
-        .withHandler(myHandlerForMaoni) //Custom Callback for Maoni
+    new Maoni.Builder(<myContextObject>, MY_FILE_PROVIDER_AUTHORITY)
+        .withDefaultToEmailAddress("feedback@my.company.com")
         .build()
         .start(MaoniSampleMainActivity.this); //The screenshot captured is relative to this calling activity 
 ```
@@ -137,7 +164,7 @@ To customize every aspect of your Maoni activity, call the fluent methods of `Ma
         .withHandler(myHandlerForMaoni) //Custom Callback for Maoni
         .withFeedbackContentHint("[Custom hint] Write your feedback here")
         .withIncludeScreenshotText("[Custom text] Include screenshot")
-        .withTouchToPreviewScreenshotText("Touch To Preview")
+        .withTouchToPreviewScreenshotText("Touch To Preview and Edit")
         .withContentErrorMessage("Custom error message")
         .withScreenshotHint("Custom test: Lorem Ipsum Dolor Sit Amet...")
         //... there are other aspects you can customize
@@ -154,13 +181,14 @@ Some common callbacks for Maoni are available as external dependencies to includ
 ##### [maoni-email](https://github.com/rm3l/maoni-email)
 
 This callback opens up an Intent for sending an email with the feedback collected.
+This is the default fallback listener used in case no other listener has been set explicitly.
 
 Add this additional line to your `build.gradle`:
 
 ```gradle
   dependencies {
     // ...
-    compile 'org.rm3l:maoni-email:2.3.1'
+    compile 'org.rm3l:maoni-email:<appropriateVersion>'
   }
 ```
 
@@ -175,6 +203,111 @@ And set it as the listener for your Maoni instance:
         .build()
         .start(MaoniSampleMainActivity.this); //The screenshot captured is relative to this calling activity 
 ```
+
+Visit the dedicated [repository](https://github.com/rm3l/maoni-email) for further details.
+
+
+##### [maoni-slack](https://github.com/rm3l/maoni-slack)
+
+This callback sends feedback collected to Slack via an [an incoming WebHook integration](https://my.slack.com/services/new/incoming-webhook).
+ 
+ To use it, you must first [set up an incoming WebHook integration](https://my.slack.com/services/new/incoming-webhook), and grab the Webhook URL.
+
+Add this additional line to your `build.gradle`:
+
+```gradle
+  dependencies {
+    // ...
+    compile 'org.rm3l:maoni-slack:<appropriateVersion>'
+  }
+```
+
+And set it as the listener for your Maoni instance
+```java
+    final org.rm3l.maoni.slack.MaoniSlackListener slackListenerForMaoni = 
+            new org.rm3l.maoni.slack.MaoniSlackListener(...); //Pass the Slack WebHook URL, channel, ...
+    
+    new Maoni.Builder(MY_FILE_PROVIDER_AUTHORITY)
+        .withListener(slackListenerForMaoni) //Callback from maoni-slack
+        //...
+        .build()
+        .start(MaoniSampleMainActivity.this); //The screenshot captured is relative to this calling activity 
+```
+
+Visit the dedicated [repository](https://github.com/rm3l/maoni-slack) for further details.
+
+##### [maoni-github](https://github.com/rm3l/maoni-github)
+
+This callback sends feedback collected as a Github issue to a specified Github repository.
+
+To use it, you will need to have an account there, and grab your Personal Access Token.
+You may want to create a dedicated `reporter` user for that purpose.
+
+Add this additional line to your `build.gradle`:
+
+```gradle
+  dependencies {
+    // ...
+    //As this will be plugged as a callback for Maoni, it requires Maoni dependency as well.
+    //See http://maoni.rm3l.org for more details.
+    //compile ('org.rm3l:maoni:<appropriate_version>@aar') {
+    //   transitive = true;
+    //}
+    compile 'org.rm3l:maoni-github:<appropriateVersion>'
+  }
+```
+
+And set it as the listener for your Maoni instance:
+```java
+    //Customize the maoni-github listener, with things like your user personal Access Token on Github
+    final org.rm3l.maoni.github.MaoniGithubListener listenerForMaoni = 
+            new org.rm3l.maoni.github.MaoniGithubListener(...);
+    
+    new Maoni.Builder(MY_FILE_PROVIDER_AUTHORITY)
+        .withListener(listenerForMaoni) //Callback from maoni-github
+        //...
+        .build()
+        .start(MaoniSampleMainActivity.this); //The screenshot captured is relative to this calling context 
+```
+
+Visit the dedicated [repository](https://github.com/rm3l/maoni-github) for further details.
+
+
+##### [maoni-jira](https://github.com/rm3l/maoni-jira)
+
+This callback sends feedback collected as a JIRA issue to a specified JIRA project.
+
+You may want to create a dedicated `reporter` user on your JIRA Host for that purpose.
+
+Add this additional line to your `build.gradle`:
+
+```gradle
+  dependencies {
+    // ...
+    //As this will be plugged as a callback for Maoni, it requires Maoni dependency as well.
+    //See http://maoni.rm3l.org for more details.
+    //compile ('org.rm3l:maoni:<appropriate_version>@aar') {
+    //   transitive = true;
+    //}
+    compile 'org.rm3l:maoni-jira:<appropriateVersion>'
+  }
+```
+
+And set it as the listener for your Maoni instance:
+```java
+    //Customize the maoni-jira listener, with things like your REST URL, username, password
+    final org.rm3l.maoni.jira.MaoniJiraListener listenerForMaoni = 
+            new org.rm3l.maoni.jira.MaoniJiraListener(...);
+    
+    new Maoni.Builder(MY_FILE_PROVIDER_AUTHORITY)
+        .withListener(listenerForMaoni) //Callback from maoni-jira
+        //...
+        .build()
+        .start(MaoniSampleMainActivity.this); //The screenshot captured is relative to this calling context 
+```
+
+Visit the dedicated [repository](https://github.com/rm3l/maoni-jira) for further details.
+
 
 ##### [maoni-doorbell](https://github.com/rm3l/maoni-doorbell)
 
@@ -203,7 +336,10 @@ And set it as the listener for your Maoni instance:
         .start(MaoniSampleMainActivity.this); //The screenshot captured is relative to this calling activity 
 ```
 
-#### Sharing the screenshot with other apps
+Visit the dedicated [repository](https://github.com/rm3l/maoni-doorbell) for further details.
+
+
+#### Sharing the files captured with other apps
 
 The file provider authority specified in the `Maoni.Builder` constructor allows you to 
 share the screenshot capture and logs files to other apps (depending on your callback implementation).
@@ -239,7 +375,7 @@ Along with the XML file that specifies the sharable directories (under `res/xml/
 </paths>
 ```
 
-See https://goo.gl/31nStZ for further instructions on how to setup file sharing.
+See [https://goo.gl/31nStZ](https://goo.gl/31nStZ) for further instructions on how to setup file sharing.
 
 
 ## Contribute and Improve Maoni!
@@ -255,6 +391,24 @@ to be able to reproduce the issue.
 You can also use the [sample app](https://play.google.com/store/apps/details?id=org.rm3l.maoni.sample) 
 to send your feedback with Maoni. ;-)
 
+### Building from source
+
+Make sure you have the Android SDK installed.
+
+Also make sure you have the appropriate Build Tools installed. You can install them via the Android's `sdkmanager`:
+```bash
+sdkmanager "build-tools;27.0.3"
+```
+
+Now you can build the project with the `Gradle Wrapper`:
+```bash
+./gradlew assembleDebug
+```
+
+You will then find the artifacts under the following folders:
+- `maoni/build/outputs/aar/`
+- `maoni-common/build/libs/`
+- `maoni-sample/build/outputs/apk/`
 
 ### Translations
  
@@ -270,7 +424,7 @@ with the next update from Crowdin.
 
 ### Contributing callbacks for Maoni
 
-You can create separate Java projects that implements any of the Maoni callbacks interfaces 
+You can create separate projects that implement any of the Maoni callbacks interfaces 
 (`Validator`, `Listener`, `UiListener`, `Handler` or any combination), 
 so users can use them in their projects.
 
@@ -279,10 +433,11 @@ You just have to include `maoni-common` as a dependency in your project, e.g., w
 ```gradle
   dependencies {
     // ...
-    compile 'org.rm3l:maoni-common:2.3.1'
+    compile 'org.rm3l:maoni-common:6.0.0'
   }
 ```
 
+You can write your project in any JVM language of your choice (e.g., [Kotlin](https://kotlinlang.org/), as with [maoni-slack](https://github.com/rm3l/maoni-slack) and [maoni-github](https://github.com/rm3l/maoni-github)), as long as the callback implementation can be called from Maoni.
 
 ## In use in the following apps
 
@@ -291,6 +446,7 @@ You just have to include `maoni-common` as a dependency in your project, e.g., w
 
 * [DD-WRT Companion](http://ddwrt-companion.rm3l.org)
 * [DD-WRT Companion Tasker Plugin](https://play.google.com/store/apps/details?id=org.rm3l.ddwrt.tasker)
+* [Androcker](https://play.google.com/store/apps/details?id=org.rm3l.container_companion)
 
 
 ## Credits
@@ -301,10 +457,29 @@ You just have to include `maoni-common` as a dependency in your project, e.g., w
 ## Developed by
 
 * Armel Soro
- * [keybase.io/rm3l](https://keybase.io/rm3l)
- * [rm3l.org](https://rm3l.org) - &lt;apps+maoni@rm3l.org&gt; - [@rm3l](https://twitter.com/rm3l)
- * [paypal.me/rm3l](https://paypal.me/rm3l)
- * [coinbase.com/rm3l](https://www.coinbase.com/rm3l)
+  * [keybase.io/rm3l](https://keybase.io/rm3l)
+  * [rm3l.org](https://rm3l.org) - &lt;apps+maoni@rm3l.org&gt; - [@rm3l](https://twitter.com/rm3l)
+  * [paypal.me/rm3l](https://paypal.me/rm3l)
+  * [coinbase.com/rm3l](https://www.coinbase.com/rm3l)
+
+
+## Contributors
+
+Thanks to the following people who help(ed) improve Maoni, 
+either by suggesting translations or by reporting an issue and/or submitting pull requests.
+
+In no particular order:
+
+* [gitter-badger](https://github.com/gitter-badger)
+* [MariusVolkhart](https://github.com/MariusVolkhart)
+* [Kalabasa](https://github.com/Kalabasa)
+* [isacastillor](https://crowdin.com/profile/isacastillor)
+* [bobsthinking](https://crowdin.com/profile/bobsthinking)
+* [omersurer](https://crowdin.com/profile/omersurer)
+* [ihtiht](https://crowdin.com/profile/ihtiht)
+* [naofum](https://crowdin.com/profile/naofum)
+* [fuzeh](https://crowdin.com/profile/sebastianbacia)
+* [utopian.io/@kedi](https://crowdin.com/profile/Apsimati)
 
 
 ## License

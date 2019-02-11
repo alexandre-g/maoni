@@ -1,0 +1,26 @@
+Maoni, Android uygulamalarından kullanıcı geri bildirimi toplayan ve müşteri memnuniyetini artırmak için bir yol sağlayan entegre bir Açık Kaynak kütüphanesidir.
+
+Material Design ilkeleri düşünülerek her yönüyle geliştirilmesi, kullanıcının görüntülediği aktivitenin bir ekran görüntüsünü yakalamasına ve geribildirimine eklemesine olanak tanır.
+
+Sadece geri arama uygulamalarını sağlayın ve başlayabilirsiniz.
+Maoni, kullanıcılarınızın geri bildirimlerini toplayacak ve bu uygulamaları arayacak.
+
+Aşağıda bulunan özelliklerin hızlı bir özetini bulabilirsiniz:
+
+- Bağlamsal bilgi. Varsa, cihaz ve uygulama bilgisi.
+ - Cihaz ekranı çözünürlüğü, mobil veri ve GPS durumları ...
+
+- Ekran görüntüsü ve günlük yakalama.
+ - İçeriğe dayalı bilgilerle geribildirim almak analiz için çok daha iyi olduğundan Maoni, uygulama günlükleri ile birlikte çağrılan etkinliğin ekran görüntüsünü almaya izin verir. Bu tür ekran görüntüsünün ve günlüklerin geribildirim nesnesine dahil edilmesinin, kullanıcının takdirine bağlı olarak devre dışı bırakıldığına dikkat edin.
+ - Ekran görüntüsünü önizlemek için dokunun
+ - Uygulamanızın kullanıcıları için vurgulama veya yakalanmış ekran öğesini karartma sağlar. İlgili öğeleri vurgulamayı veya hassas bilgileri karartmayı seçebilirler.
+
+Özelleştirme.
+ - Varsayılan form alanlarının yanı sıra ek görünümler içeren ek bir düzen de dahil etmekte özgürsünüz. Ve öncelikli görünen elemanlara daima erişebilirsiniz.
+ - Tema öğeleri ve stilleri ayarlanabilir.
+
+- Geri aramalar.
+ -- Form doğrulama. Fazladan alana ihtiyacınız olursa kendi alanınızı sağlayabilirsiniz.
+ -- Dinleyenler. Onaylandıktan sonra, Maoni daha önce sağladığınız geri çağrı uygulamalarını çağırır. Böylece başka sistemlerle entegrasyon için limitsiz olanaklara sahip olursunuz.
+
+Kaynak Kodu: http://maoni.rm3l.org

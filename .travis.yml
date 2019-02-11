@@ -26,20 +26,18 @@ language: android
 jdk:
  - oraclejdk8
 
+before_install:
+ - mkdir "$ANDROID_HOME/licenses" || true
+ - echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME/licenses/android-sdk-license"
+ - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
 android:
-  components:
-    - platform-tools
-    - tools
-    - build-tools-25.0.2
-    - android-25
-    - extra-android-support
-    - extra-google-google_play_services
-    - extra-android-m2repository
-    - extra-google-m2repository
-  licenses:
-    - '.+'
+ components:
+   # https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943
+   - tools
+   - tools
 
 before_script:
+    - yes | ${ANDROID_HOME}tools/bin/sdkmanager --channel=3 "tools" "platform-tools" "build-tools;27.0.3" "platforms;android-27" "extras;google;m2repository"
     - mkdir -p ${HOME}/.droid
     - echo "keystore=${KEYSTORE}" >> ${HOME}/.droid/maoni-keystore.properties
     - echo "storePassword=${STORE_PASSWORD}" >> ${HOME}/.droid/maoni-keystore.properties
@@ -48,19 +46,23 @@ before_script:
 
 script:
     - echo "Travis branch is $TRAVIS_BRANCH, and is in pull request $TRAVIS_PULL_REQUEST"
-    - ./gradlew clean assembleDebug --stacktrace
+#    - ./gradlew :buckWrapper
+    - bash ./buckw build maoni-sampleDebug
 
 notifications:
   email:
     - apps+maoni__builds@rm3l.org
 
-sudo: false
+sudo: required
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
 cache:
   directories:
-    - $HOME/.gradle
-
-after_success:
-     - chmod +x ./tools/*.sh
-     - bash <(curl -s https://codecov.io/bash)
-     - ./tools/import-translations-github.sh
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
+    - buck-out
+    - .okbuck

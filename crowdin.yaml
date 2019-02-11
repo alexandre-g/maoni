@@ -101,3 +101,23 @@ files:
            uk: uk
            vi: vi
            zu: zu
+
+  -
+   source: '/maoni-sample/src/main/play/whatsnew*'
+   translation: '/maoni-sample/src/main/play/%locale%/%original_file_name%'
+
+  -
+   source: '/maoni-sample/src/main/play/listing_fulldescription'
+   translation: '/maoni-sample/src/main/play/%locale%/listing/fulldescription'
+
+  -
+   source: '/maoni-sample/src/main/play/listing_shortdescription'
+   translation: '/maoni-sample/src/main/play/%locale%/listing/shortdescription'
+
+  -
+   source: '/maoni-sample/src/main/play/listing_title'
+   translation: '/maoni-sample/src/main/play/%locale%/listing/title'
+
+  # -
+  #  source: '/maoni-sample/src/main/play/listing_video'
+  #  translation: '/maoni-sample/src/main/play/%locale%/listing/video'
