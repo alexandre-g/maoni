@@ -175,8 +175,8 @@ public class DeviceInfo {
         SupplicantState supplicantState = null;
         String openGlVersion = null;
         try {
-            final WifiManager wifiManager = (WifiManager)
-                    activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            final WifiManager wifiManager =
+                    (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             @SuppressWarnings("MissingPermission") final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
             supplicantState = wifiInfo.getSupplicantState();
             openGlVersion = GLES10.glGetString(GLES10.GL_VERSION);
@@ -191,8 +191,7 @@ public class DeviceInfo {
         Boolean mobileDataEnabled = null;
         try {
             final Class cmClass = Class.forName(cm.getClass().getName());
-            @SuppressWarnings("unchecked")
-            final Method method = cmClass.getDeclaredMethod(GET_MOBILE_DATA_ENABLED);
+            @SuppressWarnings("unchecked") final Method method = cmClass.getDeclaredMethod(GET_MOBILE_DATA_ENABLED);
             method.setAccessible(true);
             mobileDataEnabled = (Boolean) method.invoke(cm);
         } catch (Throwable t) {
@@ -303,7 +302,8 @@ public class DeviceInfo {
      */
     private static class DeviceInfoSortedMap extends TreeMap<String, Object> {
 
-        @Override public Object put(String key, Object value) {
+        @Override
+        public Object put(String key, Object value) {
             if (value != null) {
                 return super.put(key, value);
             }

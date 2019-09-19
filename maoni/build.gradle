@@ -22,17 +22,20 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
+
+final VERSION_NAME = maoni_version
+final VERSION_CODE = VERSION_NAME.replace('.', '').toInteger()
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.3"
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion 28
-        versionCode 601
-        versionName "6.0.1"
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
     }
     buildTypes {
         release {
@@ -46,24 +49,28 @@ android {
         // but continue the build even when errors are found:
         abortOnError false
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 group = 'com.github.alexandre-g'
-version = '6.0.1'
+version = VERSION_NAME
 
-final homePath = System.properties['user.home']
+group = maoni_group
+version = VERSION_NAME
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(":maoni-common")
+    api project(":maoni-common")
     testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:design:28.0.0'
-    implementation 'me.panavtec:drawableview:0.6.0'
+    api 'androidx.appcompat:appcompat:1.1.0'
+    api 'com.google.android.material:material:1.0.0'
+    api 'me.panavtec:drawableview:0.6.0'
 
-    //Include maoni-email as the default listener
-    implementation 'org.rm3l:maoni-email:3.1.0-maoni_6.0.0'
+    // Include maoni-email as the default listener
+    api project(":callbacks:maoni-email")
 }
 
 task generateSourcesJar(type: Jar) {
@@ -90,10 +97,69 @@ artifacts {
     archives generateSourcesJar
 }
 
+def pomConfig = {
+    licenses {
+        license {
+            name POM_LICENCE_NAME
+            url POM_LICENCE_URL
+            distribution POM_LICENCE_DIST
+        }
+    }
+    developers {
+        developer {
+            id POM_DEVELOPER_ID
+            name POM_DEVELOPER_NAME
+            email 'armel@rm3l.org'
+        }
+    }
+    scm {
+        url POM_SCM_URL
+        connection POM_SCM_CONNECTION
+        developerConnection POM_SCM_DEV_CONNECTION
+    }
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            // Define this explicitly if using implementation or api configurations
+            pom.withXml {
+                def pomNode = asNode()
+                pomNode.remove(pomNode.get('packaging'))
+
+                pomNode.appendNode('name', POM_NAME)
+                pomNode.appendNode('description', POM_DESCRIPTION)
+                pomNode.appendNode('url', POM_URL)
+                pomNode.appendNode('packaging', POM_PACKAGING)
+
+                def dependenciesNode = pomNode.getAt('dependencies')[0] ?: pomNode.appendNode('dependencies')
+
+                // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.implementation.allDependencies.each {
+                    // Ensure dependencies such as fileTree are not included.
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        if (it.name.startsWith('maoni-')) {
+                            dependencyNode.appendNode('version', '8.0.10')
+                            dependencyNode.appendNode('packaging', 'aar')
+                        } else {
+                            dependencyNode.appendNode('version', it.version)
+                        }
+                    }
+                }
+
+                pomNode.children().last() + pomConfig
+            }
+        }
+    }
+}
+
 bintray {
 
     //Attempt to read keystore.properties file, if any first
-    final propsFile = new File(homePath.toString() + "/.droid/", "maoni.bintray.properties")
+    final propsFile = new File("${System.properties['user.home']}/.droid/", "maoni.bintray.properties")
 
     if (propsFile.exists()) {
         final props = new Properties()
@@ -105,8 +171,10 @@ bintray {
         key = ""
     }
 
+    publications = ['release']
+
     publish = true //If version should be auto published after an upload
-    
+
     pkg {
         repo = 'maven'
         name = 'org.rm3l:maoni'
@@ -114,17 +182,17 @@ bintray {
 
         //noinspection GroovyAssignabilityCheck
         version {
-            name = '6.0.1'
+            name = VERSION_NAME
+            vcsTag = VERSION_NAME
             desc = 'Maoni Android Library'
-            released  = new Date()
-            vcsTag = '6.0.1'
+            released = new Date()
         }
 
         publicDownloadNumbers = true
 
         licenses = ['MIT']
         vcsUrl = 'https://github.com/rm3l/maoni.git'
-        websiteUrl = 'https://rm3l.github.io/maoni'
+        websiteUrl = 'https://maoni.rm3l.org'
         issueTrackerUrl = 'https://github.com/rm3l/maoni/issues'
 
     }

@@ -1,11 +1,15 @@
 version: 2
+
 jobs:
   build:
     working_directory: ~/maoni-src
+
     docker:
-      - image: circleci/android:api-27-alpha
+      - image: circleci/android:api-28
+
     environment:
       JVM_OPTS: -Xmx3200m
+
     steps:
       - checkout
       
@@ -26,6 +30,7 @@ jobs:
             echo "jira.rest.baseUrl=${MAONI_JIRA_REST_BASEURL}" >> local.properties && 
             echo "jira.username=${MAONI_JIRA_USERNAME}" >> local.properties && 
             echo "jira.password=${MAONI_JIRA_PASSWORD}" >> local.properties
+
       - run:
           name: Prepare maoni-keystore.properties
           command: mkdir -p ~/.droid && 
@@ -40,9 +45,11 @@ jobs:
 
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "maoni-sample/build.gradle" }}
+
       - run:
           name: Download Dependencies
           command: ./gradlew androidDependencies --stacktrace
+
       - save_cache:
           paths:
             - ~/.gradle
@@ -50,7 +57,7 @@ jobs:
       
       - run:
           name: Run Tests
-          command: ./gradlew clean lint test --stacktrace
+          command: ./gradlew clean lintDebug testDebug --stacktrace
       
       - run:
           name: Assemble package
@@ -65,11 +72,9 @@ jobs:
           command: ./tools/update-github-pages.sh
 
       - store_artifacts:
-          path: buck-out/gen
-          destination: buck-out
-      - store_artifacts:
           path: maoni-sample/build/outputs
           destination: outputs
+
       - store_artifacts:
           path: maoni-sample/build/reports
           destination: reports
