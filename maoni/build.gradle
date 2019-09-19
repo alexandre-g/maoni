@@ -58,9 +58,6 @@ android {
 group = 'com.github.alexandre-g'
 version = VERSION_NAME
 
-group = maoni_group
-version = VERSION_NAME
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(":maoni-common")
