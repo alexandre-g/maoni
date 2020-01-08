@@ -215,10 +215,10 @@ public class MaoniActivity extends AppCompatActivity {
         }
 
         final ImageView headerImageView = findViewById(R.id.maoni_toolbar_header_image);
-        if (headerImageView != null && intent.hasExtra(HEADER)) {
-            final int headerLayoutId = intent.getIntExtra(HEADER, -1);
+        if (headerImageView != null) {
+            final int headerId = intent.getIntExtra(HEADER, R.drawable.maoni_header);
             try {
-                headerImageView.setImageResource(headerLayoutId != -1 ? headerLayoutId : R.drawable.maoni_header);
+                headerImageView.setImageResource(headerId);
             } catch (Throwable t) {
                 Log.w("Maoni", t);
                 headerImageView.setBackgroundColor(Color.GRAY);
