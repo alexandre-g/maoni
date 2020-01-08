@@ -42,7 +42,6 @@ SOFTWARE.
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true">
 
                 <ImageButton
@@ -53,7 +52,6 @@ SOFTWARE.
                     android:contentDescription="@string/maoni_highlight"
                     android:background="?attr/selectableItemBackground"
                     android:padding="3dp"
-                    android:layout_marginRight="3dp"
                     android:layout_marginEnd="3dp"/>
 
                 <ImageButton
@@ -71,7 +69,7 @@ SOFTWARE.
                 android:id="@+id/maoni_screenshot_preview_undo"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
-                android:src="@drawable/ic_undo_white_24dp"
+                android:src="@drawable/ic_undo_24dp"
                 android:contentDescription="@string/maoni_undo"
                 android:layout_centerInParent="true"
                 android:background="?attr/selectableItemBackground"/>
@@ -79,17 +77,15 @@ SOFTWARE.
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="3dp"
                 android:layout_marginEnd="3dp"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/maoni_screenshot_preview_save"
                     android:layout_width="?attr/actionBarSize"
                     android:layout_height="?attr/actionBarSize"
-                    android:src="@drawable/ic_save_white_24dp"
+                    android:src="@drawable/ic_save_24dp"
                     android:contentDescription="@string/maoni_save"
                     android:background="?attr/selectableItemBackground"/>
 
@@ -97,7 +93,7 @@ SOFTWARE.
                     android:id="@+id/maoni_screenshot_preview_close"
                     android:layout_width="?attr/actionBarSize"
                     android:layout_height="?attr/actionBarSize"
-                    android:src="@drawable/ic_close_white_24dp"
+                    android:src="@drawable/ic_close_24dp"
                     android:contentDescription="@string/maoni_close"
                     android:background="?attr/selectableItemBackground"/>
 

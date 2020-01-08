@@ -30,14 +30,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -52,14 +44,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.UUID;
-import me.panavtec.drawableview.DrawableView;
-import me.panavtec.drawableview.DrawableViewConfig;
 import org.rm3l.maoni.Maoni.CallbacksConfiguration;
 import org.rm3l.maoni.R;
 import org.rm3l.maoni.common.contract.Listener;
@@ -68,6 +63,13 @@ import org.rm3l.maoni.common.contract.Validator;
 import org.rm3l.maoni.common.model.Feedback;
 import org.rm3l.maoni.utils.LogcatUtils;
 import org.rm3l.maoni.utils.ViewUtils;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.UUID;
+
+import me.panavtec.drawableview.DrawableView;
+import me.panavtec.drawableview.DrawableViewConfig;
 
 /**
  * Maoni Activity
@@ -215,8 +217,11 @@ public class MaoniActivity extends AppCompatActivity {
         final ImageView headerImageView = findViewById(R.id.maoni_toolbar_header_image);
         if (headerImageView != null && intent.hasExtra(HEADER)) {
             final int headerLayoutId = intent.getIntExtra(HEADER, -1);
-            if (headerLayoutId != -1) {
-                headerImageView.setImageResource(headerLayoutId);
+            try {
+                headerImageView.setImageResource(headerLayoutId != -1 ? headerLayoutId : R.drawable.maoni_header);
+            } catch (Throwable t) {
+                Log.w("Maoni", t);
+                headerImageView.setBackgroundColor(Color.GRAY);
             }
         }
 
@@ -343,8 +348,18 @@ public class MaoniActivity extends AppCompatActivity {
 
         mFeedbackUniqueId = UUID.randomUUID().toString();
 
-        final View fab = findViewById(R.id.maoni_fab);
+        final ImageView fab = findViewById(R.id.maoni_fab);
         if (fab != null) {
+            try {
+                fab.setImageResource(R.drawable.ic_send_24dp);
+            } catch (Throwable t1) {
+                Log.w("Maoni", t1);
+                try {
+                    fab.setImageResource(android.R.drawable.ic_menu_send);
+                } catch (Throwable t2) {
+                    Log.w("Maoni", t2);
+                }
+            }
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -385,18 +400,22 @@ public class MaoniActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.maoni_activity_menu, menu);
-        this.mMenu = menu;
-        final AppBarLayout appBarLayout = findViewById(R.id.maoni_app_bar);
-        appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
-            @Override
-            public void onStateChanged(AppBarLayout appBarLayout, State state) {
-                final MenuItem item = mMenu.findItem(R.id.maoni_feedback_send);
-                if (item != null) {
-                    item.setVisible(state != State.EXPANDED);
+        try {
+            getMenuInflater().inflate(R.menu.maoni_activity_menu, menu);
+            this.mMenu = menu;
+            final AppBarLayout appBarLayout = findViewById(R.id.maoni_app_bar);
+            appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+                @Override
+                public void onStateChanged(AppBarLayout appBarLayout, State state) {
+                    final MenuItem item = mMenu.findItem(R.id.maoni_feedback_send);
+                    if (item != null) {
+                        item.setVisible(state != State.EXPANDED);
+                    }
                 }
-            }
-        });
+            });
+        } catch (Throwable t) {
+            Log.w("Maoni", t);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
