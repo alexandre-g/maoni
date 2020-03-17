@@ -1,18 +1,18 @@
 [![Bintray](https://img.shields.io/bintray/v/rm3l/maven/org.rm3l:maoni.svg)](https://bintray.com/rm3l/maven/org.rm3l%3Amaoni)
-[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/maoni-app/maoni/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/rm3l/maoni/blob/master/LICENSE)
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Maoni-blue.svg?style=flat)](http://android-arsenal.com/details/1/3925)
 [![Website](https://img.shields.io/website-up-down-green-red/http/maoni.rm3l.org.svg)](http://maoni.rm3l.org)
 <!-- [![Join the chat at https://gitter.im/rm3l/maoni](https://badges.gitter.im/rm3l/maoni.svg)](https://gitter.im/rm3l/maoni?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) -->
 
-[![CircleCI](https://circleci.com/gh/maoni-app/maoni/tree/master.svg?style=svg)](https://circleci.com/gh/maoni-app/maoni/tree/master)
-[![Issue Count](https://codeclimate.com/github/maoni-app/maoni/badges/issue_count.svg)](https://codeclimate.com/github/maoni-app/maoni)
+[![CircleCI](https://circleci.com/gh/rm3l/maoni/tree/master.svg?style=svg)](https://circleci.com/gh/rm3l/maoni/tree/master)
+[![Issue Count](https://codeclimate.com/github/rm3l/maoni/badges/issue_count.svg)](https://codeclimate.com/github/rm3l/maoni)
 
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=maoni-app/maoni)](https://dependabot.com)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=rm3l/maoni)](https://dependabot.com)
 
-[![GitHub watchers](https://img.shields.io/github/watchers/maoni-app/maoni.svg?style=social&label=Watch)](https://github.com/maoni-app/maoni)
-[![GitHub stars](https://img.shields.io/github/stars/maoni-app/maoni.svg?style=social&label=Star)](https://github.com/maoni-app/maoni)
-[![GitHub forks](https://img.shields.io/github/forks/maoni-app/maoni.svg?style=social&label=Fork)](https://github.com/maoni-app/maoni)
+[![GitHub watchers](https://img.shields.io/github/watchers/rm3l/maoni.svg?style=social&label=Watch)](https://github.com/rm3l/maoni)
+[![GitHub stars](https://img.shields.io/github/stars/rm3l/maoni.svg?style=social&label=Star)](https://github.com/rm3l/maoni)
+[![GitHub forks](https://img.shields.io/github/forks/rm3l/maoni.svg?style=social&label=Fork)](https://github.com/rm3l/maoni)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -109,15 +109,15 @@ By the way, as a side note, Maoni is a Swahili word for comments or opinions.
 
 ## Preview
 
-<img width="40%" src="https://raw.githubusercontent.com/maoni-app/maoni/master/doc/screenshots/raw/maoni_2.3.1.gif"/>
+<img width="40%" src="https://raw.githubusercontent.com/rm3l/maoni/master/doc/screenshots/raw/maoni_2.3.1.gif"/>
     
 <!--
 <div align="center">
-    <img width="30%" src="https://raw.githubusercontent.com/maoni-app/maoni/master/doc/screenshots/raw/1_Maoni_main_activity.png"/>
+    <img width="30%" src="https://raw.githubusercontent.com/rm3l/maoni/master/doc/screenshots/raw/1_Maoni_main_activity.png"/>
     <img height="0" width="8px"/>
-    <img width="30%" src="https://raw.githubusercontent.com/maoni-app/maoni/master/doc/screenshots/raw/2_Maoni_main_activity_with_screenshot_logs_thumbnail.png"/>
+    <img width="30%" src="https://raw.githubusercontent.com/rm3l/maoni/master/doc/screenshots/raw/2_Maoni_main_activity_with_screenshot_logs_thumbnail.png"/>
     <img height="0" width="8px"/>
-    <img width="30%" src="https://raw.githubusercontent.com/maoni-app/maoni/master/doc/screenshots/raw/3_Maoni_main_activity_with_screenshot_touch_to_preview_highlight_blackout.png"/>
+    <img width="30%" src="https://raw.githubusercontent.com/rm3l/maoni/master/doc/screenshots/raw/3_Maoni_main_activity_with_screenshot_touch_to_preview_highlight_blackout.png"/>
 </div>
 -->
 
@@ -128,7 +128,7 @@ Grab via Gradle, by adding this to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.0.10@aar'
+    implementation 'org.rm3l:maoni:8.1.0@aar'
   }
 ```
 
@@ -160,7 +160,7 @@ To customize every aspect of your Maoni activity, call the fluent methods of `Ma
     //share the screenshot capture file to other apps (depending on your callback implementation)
     new Maoni.Builder(MY_FILE_PROVIDER_AUTHORITY)
         .withWindowTitle("Send Feedback") //Set to an empty string to clear it
-        .withMessage("Hey! Love or hate this app? We would love to hear from you.")
+        .withMessage("Hey! Love this app? We would love to hear from you.")
         .withExtraLayout(R.layout.my_feedback_activity_extra_content)
         .withHandler(myHandlerForMaoni) //Custom Callback for Maoni
         .withFeedbackContentHint("[Custom hint] Write your feedback here")
@@ -191,7 +191,7 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.0.10@aar'
+    implementation 'org.rm3l:maoni:8.1.0@aar'
   }
 ```
 
@@ -221,8 +221,8 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.0.10@aar'
-    implementation 'org.rm3l:maoni-slack:8.0.10@aar'
+    implementation 'org.rm3l:maoni:8.1.0@aar'
+    implementation 'org.rm3l:maoni-slack:8.1.0@aar'
   }
 ```
 
@@ -251,8 +251,8 @@ Add this additional line to your `build.gradle`:
 
 ```gradle
   dependencies {
-    implementation 'org.rm3l:maoni:8.0.10@aar'
-    implementation 'org.rm3l:maoni-github:8.0.10@aar'
+    implementation 'org.rm3l:maoni:8.1.0@aar'
+    implementation 'org.rm3l:maoni-github:8.1.0@aar'
   }
 ```
 
@@ -282,8 +282,8 @@ Add this additional line to your `build.gradle`:
 
 ```gradle
   dependencies {
-    implementation 'org.rm3l:maoni:8.0.10@aar'
-    implementation 'org.rm3l:maoni-jira:8.0.10@aar'
+    implementation 'org.rm3l:maoni:8.1.0@aar'
+    implementation 'org.rm3l:maoni-jira:8.1.0@aar'
   }
 ```
 
@@ -314,8 +314,8 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.0.10@aar'
-    implementation 'org.rm3l:maoni-doorbell:8.0.10@aar'
+    implementation 'org.rm3l:maoni:8.1.0@aar'
+    implementation 'org.rm3l:maoni-doorbell:8.1.0@aar'
   }
 ```
 
@@ -400,7 +400,7 @@ Contributions and issue reporting are more than welcome.
 So to help out, do feel free to fork this repo and open up a pull request. 
 I'll review and merge your changes as quickly as possible.
 
-You can use [GitHub issues](https://github.com/maoni-app/maoni/issues) to report bugs. 
+You can use [GitHub issues](https://github.com/rm3l/maoni/issues) to report bugs. 
 However, please make sure your description is clear enough and has sufficient instructions 
 to be able to reproduce the issue.
 
@@ -448,10 +448,10 @@ You just have to include `maoni-common` as a dependency in your project, e.g., w
 ```gradle
   dependencies {
     // ...
-    api 'org.rm3l:maoni-common:8.0.10@aar'
+    api 'org.rm3l:maoni-common:8.1.0@aar'
   }
 ```
-You can write your project in any JVM language of your choice (e.g., [Kotlin](https://kotlinlang.org/), as with [maoni-slack](https://github.com/maoni-app/maoni-slack) and [maoni-github](https://github.com/maoni-app/maoni-github)), as long as the callback implementation can be called from Maoni.
+You can write your project in any JVM language of your choice (e.g., [Kotlin](https://kotlinlang.org/), as with [maoni-slack](https://github.com/rm3l/maoni-slack) and [maoni-github](https://github.com/rm3l/maoni-github)), as long as the callback implementation can be called from Maoni.
 
 #### Publishing a new release
 
