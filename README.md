@@ -34,7 +34,7 @@
   - [Building from source](#building-from-source)
   - [Translations](#translations)
   - [Contributing callbacks for Maoni](#contributing-callbacks-for-maoni)
-    - [Publishing a new release](#publishing-a-new-release)
+  - [Publishing a new release](#publishing-a-new-release)
 - [In use in the following apps](#in-use-in-the-following-apps)
 - [Credits](#credits)
 - [Developed by](#developed-by)
@@ -128,7 +128,7 @@ Grab via Gradle, by adding this to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.1.0@aar'
+    implementation 'org.rm3l:maoni:8.2.0@aar'
   }
 ```
 
@@ -191,7 +191,7 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.1.0@aar'
+    implementation 'org.rm3l:maoni:8.2.0@aar'
   }
 ```
 
@@ -221,8 +221,8 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.1.0@aar'
-    implementation 'org.rm3l:maoni-slack:8.1.0@aar'
+    implementation 'org.rm3l:maoni:8.2.0@aar'
+    implementation 'org.rm3l:maoni-slack:8.2.0@aar'
   }
 ```
 
@@ -251,8 +251,8 @@ Add this additional line to your `build.gradle`:
 
 ```gradle
   dependencies {
-    implementation 'org.rm3l:maoni:8.1.0@aar'
-    implementation 'org.rm3l:maoni-github:8.1.0@aar'
+    implementation 'org.rm3l:maoni:8.2.0@aar'
+    implementation 'org.rm3l:maoni-github:8.2.0@aar'
   }
 ```
 
@@ -282,8 +282,8 @@ Add this additional line to your `build.gradle`:
 
 ```gradle
   dependencies {
-    implementation 'org.rm3l:maoni:8.1.0@aar'
-    implementation 'org.rm3l:maoni-jira:8.1.0@aar'
+    implementation 'org.rm3l:maoni:8.2.0@aar'
+    implementation 'org.rm3l:maoni-jira:8.2.0@aar'
   }
 ```
 
@@ -314,8 +314,8 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.1.0@aar'
-    implementation 'org.rm3l:maoni-doorbell:8.1.0@aar'
+    implementation 'org.rm3l:maoni:8.2.0@aar'
+    implementation 'org.rm3l:maoni-doorbell:8.2.0@aar'
   }
 ```
 
@@ -448,12 +448,12 @@ You just have to include `maoni-common` as a dependency in your project, e.g., w
 ```gradle
   dependencies {
     // ...
-    api 'org.rm3l:maoni-common:8.1.0@aar'
+    api 'org.rm3l:maoni-common:8.2.0@aar'
   }
 ```
 You can write your project in any JVM language of your choice (e.g., [Kotlin](https://kotlinlang.org/), as with [maoni-slack](https://github.com/rm3l/maoni-slack) and [maoni-github](https://github.com/rm3l/maoni-github)), as long as the callback implementation can be called from Maoni.
 
-#### Publishing a new release
+### Publishing a new release
 
 All releases (Git tags) are published to [Bintray](https://bintray.com/rm3l/maven/org.rm3l%3Amaoni).
 
@@ -519,7 +519,7 @@ In no particular order:
 
     The MIT License (MIT)
     
-    Copyright (c) 2016-2019 Armel Soro
+    Copyright (c) 2016-2020 Armel Soro
     
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
