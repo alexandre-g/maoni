@@ -90,7 +90,3 @@ artifacts {
     archives generateJavadocsJar
     archives generateSourcesJar
 }
-
-publishing {
-    singleVariant("release")
-}

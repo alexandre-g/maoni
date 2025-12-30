@@ -80,11 +80,21 @@ subprojects { project ->
         project.tasks.withType(Test) { Test task ->
             task.jvmArgs << "-Djava.awt.headless=true"
         }
+    }
 
-        publishing {
-            publications {
-                release(MavenPublication) {
-                    from components.release
+    plugins.withId("com.android.library") {
+        project.android {
+            publishing {
+                singleVariant("release")
+            }
+        }
+
+        afterEvaluate {
+            publishing {
+                publications {
+                    release(MavenPublication) {
+                        from components.release
+                    }
                 }
             }
         }
