@@ -1,15 +1,20 @@
-[![Bintray](https://img.shields.io/bintray/v/rm3l/maven/org.rm3l:maoni.svg)](https://bintray.com/rm3l/maven/org.rm3l%3Amaoni)
+[![Maven Central](https://img.shields.io/maven-central/v/org.rm3l/maoni)](https://search.maven.org/artifact/org.rm3l/maoni)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/rm3l/maoni/blob/master/LICENSE)
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Maoni-blue.svg?style=flat)](http://android-arsenal.com/details/1/3925)
 [![Website](https://img.shields.io/website-up-down-green-red/http/maoni.rm3l.org.svg)](http://maoni.rm3l.org)
 <!-- [![Join the chat at https://gitter.im/rm3l/maoni](https://badges.gitter.im/rm3l/maoni.svg)](https://gitter.im/rm3l/maoni?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) -->
 
-[![CircleCI](https://circleci.com/gh/rm3l/maoni/tree/master.svg?style=svg)](https://circleci.com/gh/rm3l/maoni/tree/master)
+[![CI](https://github.com/rm3l/maoni/actions/workflows/build.yml/badge.svg)](https://github.com/rm3l/maoni/actions/workflows/build.yml)
+[![Translations](https://github.com/rm3l/maoni/actions/workflows/translations.yml/badge.svg)](https://github.com/rm3l/maoni/actions/workflows/translations.yml)
+[![Website](https://github.com/rm3l/maoni/actions/workflows/website.yml/badge.svg)](https://github.com/rm3l/maoni/actions/workflows/website.yml)
+
+[![Maintainability](https://api.codeclimate.com/v1/badges/6deec1732c359d492b3e/maintainability)](https://codeclimate.com/github/rm3l/maoni/maintainability)
 [![Issue Count](https://codeclimate.com/github/rm3l/maoni/badges/issue_count.svg)](https://codeclimate.com/github/rm3l/maoni)
 
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=rm3l/maoni)](https://dependabot.com)
-
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 [![GitHub watchers](https://img.shields.io/github/watchers/rm3l/maoni.svg?style=social&label=Watch)](https://github.com/rm3l/maoni)
 [![GitHub stars](https://img.shields.io/github/stars/rm3l/maoni.svg?style=social&label=Star)](https://github.com/rm3l/maoni)
 [![GitHub forks](https://img.shields.io/github/forks/rm3l/maoni.svg?style=social&label=Fork)](https://github.com/rm3l/maoni)
@@ -39,6 +44,7 @@
 - [Credits](#credits)
 - [Developed by](#developed-by)
 - [Contributors](#contributors)
+- [Sponsors](#sponsors)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -123,12 +129,22 @@ By the way, as a side note, Maoni is a Swahili word for comments or opinions.
 
 ## Getting started
 
-Grab via Gradle, by adding this to your `build.gradle`:
+This library is published on [Maven Central](https://search.maven.org/artifact/org.rm3l/maoni). So importing it should be straightforward.
+Declare the [Maven Central repository](https://repo.maven.apache.org/maven2/) (if not done yet) and import this project:
 
 ```gradle
+  repositories {
+      //...
+      mavenCentral()
+  }
+
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.2.0@aar'
+    implementation('org.rm3l:maoni:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
   }
 ```
 
@@ -191,7 +207,11 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.2.0@aar'
+    implementation('org.rm3l:maoni:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
   }
 ```
 
@@ -221,8 +241,16 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.2.0@aar'
-    implementation 'org.rm3l:maoni-slack:8.2.0@aar'
+    implementation('org.rm3l:maoni:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
+    implementation('org.rm3l:maoni-slack:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
   }
 ```
 
@@ -251,8 +279,16 @@ Add this additional line to your `build.gradle`:
 
 ```gradle
   dependencies {
-    implementation 'org.rm3l:maoni:8.2.0@aar'
-    implementation 'org.rm3l:maoni-github:8.2.0@aar'
+    implementation('org.rm3l:maoni:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
+    implementation('org.rm3l:maoni-github:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
   }
 ```
 
@@ -282,8 +318,16 @@ Add this additional line to your `build.gradle`:
 
 ```gradle
   dependencies {
-    implementation 'org.rm3l:maoni:8.2.0@aar'
-    implementation 'org.rm3l:maoni-jira:8.2.0@aar'
+    implementation('org.rm3l:maoni:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
+    implementation('org.rm3l:maoni-jira:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
   }
 ```
 
@@ -314,8 +358,16 @@ Add this additional line to your `build.gradle`:
 ```gradle
   dependencies {
     // ...
-    implementation 'org.rm3l:maoni:8.2.0@aar'
-    implementation 'org.rm3l:maoni-doorbell:8.2.0@aar'
+    implementation('org.rm3l:maoni:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
+    implementation('org.rm3l:maoni-doorbell:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
   }
 ```
 
@@ -448,26 +500,36 @@ You just have to include `maoni-common` as a dependency in your project, e.g., w
 ```gradle
   dependencies {
     // ...
-    api 'org.rm3l:maoni-common:8.2.0@aar'
+    api('org.rm3l:maoni-common:10.0.0@aar') {
+        transitive = true
+        //Needed because of https://github.com/rm3l/maoni/issues/294
+        exclude module: 'unspecified'
+    }
   }
 ```
 You can write your project in any JVM language of your choice (e.g., [Kotlin](https://kotlinlang.org/), as with [maoni-slack](https://github.com/rm3l/maoni-slack) and [maoni-github](https://github.com/rm3l/maoni-github)), as long as the callback implementation can be called from Maoni.
 
 ### Publishing a new release
 
-All releases (Git tags) are published to [Bintray](https://bintray.com/rm3l/maven/org.rm3l%3Amaoni).
+All releases (Git tags) are published to [Maven Central](https://search.maven.org/search?q=g:org.rm3l) via [Sonatype](https://oss.sonatype.org/#welcome).
 
-To publish to Bintray, you need to have the appropriate rights. 
-Additionally, your Bintray credentials are expected to be put on your local machine 
-in `${HOME}/.droid/maoni.bintray.properties`, which should at least contain 
-the following properties:
-- `user` : the username used for publishing
-- `key` : your Bintray API Key, which you can retrieve from your Bintray account
+The `.github/workflows/build.yml` Workflow file contains a Job responsible for publishing libraries to Sonatype whenever a new tag is pushed.
+
+Alternatively, this operation may be performed manually.
+To do so, you can update or create a `local.properties` file (local only, **not** under version control) file at the root of this project.
+This file should contain at least the following properties:
+
+- `signing.keyId` : the GPG Signing Key ID
+- `signing.secretKeyRingFile` : the path to the GPG signing key file, to use for signing files uploaded to Maven Central
+- `signing.password` : the GPG signing key password
+- `ossrhUsername` : the Sonatype Nexus Repository username
+- `ossrhPassword` : the Sonatype Nexus Repository user password
+- `sonatypeStagingProfileId`: the Staging Repo Profile ID (ask one maintainer to provide such information)
 
 The following command can then be run to publish a new version:
 
 ```bash
-./gradlew build javadoc generatePomFileForReleasePublication bintrayUpload
+./gradlew javadoc publishToSonatype closeAndReleaseStagingRepository
 ```
 
 ## In use in the following apps
@@ -501,25 +563,46 @@ either by suggesting translations or by reporting an issue and/or submitting pul
 
 In no particular order:
 
-* [Marius Volkhart](https://github.com/MariusVolkhart)
-* [Lean Rada](https://github.com/Kalabasa)
-* [isacastillor](https://crowdin.com/profile/isacastillor)
-* [bobsthinking](https://crowdin.com/profile/bobsthinking)
-* [omersurer](https://crowdin.com/profile/omersurer)
-* [ihtiht](https://crowdin.com/profile/ihtiht)
-* [naofum](https://crowdin.com/profile/naofum)
-* [fuzeh](https://crowdin.com/profile/sebastianbacia)
-* [utopian.io/@kedi](https://crowdin.com/profile/Apsimati)
-* [Dimitar Dinchev](https://github.com/ddinchev)
-* [vlad-roid](https://github.com/vlad-roid)
-* [gmiklos-inst](https://github.com/gmiklos-inst)
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/MariusVolkhart"><img src="https://avatars.githubusercontent.com/u/1709517?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Marius Volkhart</b></sub></a><br /><a href="https://github.com/rm3l/maoni/commits?author=MariusVolkhart" title="Code">💻</a> <a href="https://github.com/rm3l/maoni/issues?q=author%3AMariusVolkhart" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://kalabasa.github.io/"><img src="https://avatars.githubusercontent.com/u/3705081?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lean Rada</b></sub></a><br /><a href="https://github.com/rm3l/maoni/commits?author=Kalabasa" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/isacastillor"><img src="https://avatars.githubusercontent.com/u/36340751?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Isamar Castillo</b></sub></a><br /><a href="#translation-isacastillor" title="Translation">🌍</a></td>
+    <td align="center"><a href="https://github.com/omersurer"><img src="https://avatars.githubusercontent.com/u/35373108?v=4?s=100" width="100px;" alt=""/><br /><sub><b>omersurer</b></sub></a><br /><a href="#translation-omersurer" title="Translation">🌍</a></td>
+    <td align="center"><a href="https://github.com/ihtiht"><img src="https://avatars.githubusercontent.com/u/36369736?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ihtiht</b></sub></a><br /><a href="#translation-ihtiht" title="Translation">🌍</a></td>
+    <td align="center"><a href="https://github.com/naofum"><img src="https://avatars.githubusercontent.com/u/8462938?v=4?s=100" width="100px;" alt=""/><br /><sub><b>naofum</b></sub></a><br /><a href="#translation-naofum" title="Translation">🌍</a></td>
+    <td align="center"><a href="https://github.com/Fuzeh"><img src="https://avatars.githubusercontent.com/u/34560993?v=4?s=100" width="100px;" alt=""/><br /><sub><b>fuzeh</b></sub></a><br /><a href="#translation-Fuzeh" title="Translation">🌍</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://crowdin.com/profile/Apsimati"><img src="https://avatars.githubusercontent.com/u/8462938?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Apsimati</b></sub></a><br /><a href="#translation-Apsimati" title="Translation">🌍</a></td>
+    <td align="center"><a href="http://www.carspending.com/"><img src="https://avatars.githubusercontent.com/u/1397692?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dimitar Dinchev</b></sub></a><br /><a href="https://github.com/rm3l/maoni/commits?author=ddinchev" title="Code">💻</a> <a href="https://github.com/rm3l/maoni/issues?q=author%3Addinchev" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/vlad-roid"><img src="https://avatars.githubusercontent.com/u/26101312?v=4?s=100" width="100px;" alt=""/><br /><sub><b>vlad-roid</b></sub></a><br /><a href="https://github.com/rm3l/maoni/commits?author=vlad-roid" title="Code">💻</a> <a href="https://github.com/rm3l/maoni/issues?q=author%3Avlad-roid" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/gmiklos-inst"><img src="https://avatars.githubusercontent.com/u/47978769?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Gabriel Miklós</b></sub></a><br /><a href="https://github.com/rm3l/maoni/commits?author=gmiklos-inst" title="Code">💻</a></td>
+    <td align="center"><a href="https://sanplot.com"><img src="https://avatars.githubusercontent.com/u/14003063?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dennis Deng</b></sub></a><br /><a href="https://github.com/rm3l/maoni/commits?author=dennisdeng2002" title="Code">💻</a></td>
+  </tr>
+</table>
 
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind are welcome!
+
+## Sponsors
+
+Special thanks to [JetBrains](https://www.jetbrains.com/) for supporting this project by providing us with a free license of [IntelliJ IDEA](https://www.jetbrains.com/idea/).
+
+![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
 
 ## License
 
     The MIT License (MIT)
     
-    Copyright (c) 2016-2020 Armel Soro
+    Copyright (c) 2016-2022 Armel Soro
     
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal

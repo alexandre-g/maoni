@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016 Armel Soro
+# Copyright (c) 2016-2022 Armel Soro
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
 #
 
 ---
-project_identifier: 'maoni'
-api_key_env: 'CROWDIN_API_KEY'
+project_id_env: 'CROWDIN_PROJECT_ID'
+api_token_env: 'CROWDIN_API_TOKEN'
 base_url: 'https://api.crowdin.com'
 preserve_hierarchy: true
 
@@ -103,7 +103,7 @@ files:
            zu: zu
 
   -
-   source: '/maoni-sample/src/main/play/whatsnew*'
+   source: '/maoni-sample/src/main/play/whatsnew'
    translation: '/maoni-sample/src/main/play/%locale%/%original_file_name%'
 
   -

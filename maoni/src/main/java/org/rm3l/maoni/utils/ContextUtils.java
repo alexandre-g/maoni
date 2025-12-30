@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Armel Soro
+ * Copyright (c) 2016-2022 Armel Soro
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,9 @@
  */
 package org.rm3l.maoni.utils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,8 +55,17 @@ public final class ContextUtils {
                     .getField(fieldName)
                     .get(null);
         } catch (final Exception e) {
-            //No worries
-            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Nullable
+    public static Activity scanForActivity(@NonNull final Context context) {
+        if (context instanceof Activity) {
+            return (Activity) context;
+        } else if (context instanceof ContextWrapper) {
+            return scanForActivity(((ContextWrapper) context).getBaseContext());
+        } else {
             return null;
         }
     }

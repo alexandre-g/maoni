@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2016 Armel Soro
+# Copyright (c) 2016-2022 Armel Soro
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -22,28 +22,28 @@
 #
 #
 
+set -euxo pipefail
+
 if [ "$CIRCLE_PULL_REQUEST" == "" ]; then
   echo -e "Starting gh-pages update...\n"
 
   #go to home and setup git
   cd $HOME
-  git config --global user.email "circle_ci@rm3l.org"
-  git config --global user.name "Cir Cle"
+  git config --global user.email "${GIT_COMMIT_USER_EMAIL:-circle_ci@rm3l.org}"
+  git config --global user.name "${GIT_COMMIT_USER_NAME:-'Circle CI'}"
 
-  git clone --branch=gh-pages https://$GITHUB_API_KEY@github.com/rm3l/maoni.git gh-pages > /dev/null
+  git clone --branch=gh-pages https://rm3l:$GITHUB_API_KEY@github.com/rm3l/maoni.git gh-pages > /dev/null
 
   cd gh-pages
   # Import README.md from master
   git show origin/master:README.md > index.md
 
-  # git remote rm origin
-  # git remote add origin https://rm3l:$GITHUB_API_KEY@github.com/rm3l/maoni.git
-
   #add, commit and push files
-  git add index.md
-  git commit -q -m "Automatic README.md => index.md import (build #$CIRCLE_BUILD_NUM)." \
-    -m "Commit $CIRCLE_SHA1"
-  git push -q origin gh-pages > /dev/null
+  [[ -z $(git status --porcelain) ]] || \
+      (
+  git add index.md && \
+  git commit -q -m "Automatic README.md => index.md import (build #$CIRCLE_BUILD_NUM)." -m "Commit $CIRCLE_SHA1" && \
+  git push -q origin gh-pages > /dev/null )
 
   echo -e "... Done with updating gh-pages\n"
 fi
