@@ -68,7 +68,7 @@ dependencies {
 
 task generateSourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier 'sources'
+    archiveClassifier.set("sources")
 }
 
 task generateJavadocs(type: Javadoc) {
@@ -80,7 +80,7 @@ task generateJavadocs(type: Javadoc) {
 
 task generateJavadocsJar(type: Jar) {
     from generateJavadocs.destinationDir
-    classifier 'javadoc'
+    archiveClassifier.set("javadoc")
 }
 
 generateJavadocsJar.dependsOn generateJavadocs
