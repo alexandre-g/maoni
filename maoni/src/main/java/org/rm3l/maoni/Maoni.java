@@ -46,7 +46,6 @@ import org.rm3l.maoni.common.contract.Handler;
 import org.rm3l.maoni.common.contract.Listener;
 import org.rm3l.maoni.common.contract.UiListener;
 import org.rm3l.maoni.common.contract.Validator;
-import org.rm3l.maoni.email.MaoniEmailListener;
 import org.rm3l.maoni.ui.MaoniActivity;
 import org.rm3l.maoni.utils.ContextUtils;
 import org.rm3l.maoni.utils.ViewUtils;
@@ -97,7 +96,6 @@ public class Maoni {
     private static final String DEBUG = "DEBUG";
     private static final String FLAVOR = "FLAVOR";
     private static final String BUILD_TYPE = "BUILD_TYPE";
-    public static final String DEFAULT_LISTENER_EMAIL_TO = "DEFAULT_LISTENER_EMAIL_TO";
 
     /**
      * The feedback window title
@@ -638,30 +636,6 @@ public class Maoni {
         }
 
         /**
-         * If no listener is set (i.e no call to {@link #withListener(Listener)}),
-         * {@link MaoniEmailListener} is used by default (provided {@link #context} is non-null).
-         * <p>
-         * This allows to configure the 'to' email addresses to use for the default listener.
-         * If {@link #withListener(Listener)} is called explicitly, then this
-         * method will have no effect at all.
-         * @param toAddresses the 'to' addresses
-         * @return this Builder
-         */
-        @SuppressLint("ApplySharedPref")
-        public Builder withDefaultToEmailAddress(@Nullable final String... toAddresses) {
-            if (context != null && toAddresses != null) {
-                context.getSharedPreferences(
-                    Maoni.class.getPackage().getName(),
-                    Context.MODE_PRIVATE)
-                    .edit()
-                    .putStringSet(DEFAULT_LISTENER_EMAIL_TO,
-                        new HashSet<>(Arrays.asList(toAddresses)))
-                    .commit();
-            }
-            return this;
-        }
-
-        /**
          * Include SharedPreferences value map.
          * <p>
          * SharedPreferences files are opened with the default operating mode.
@@ -745,18 +719,7 @@ public class Maoni {
         private UiListener uiListener;
 
         private CallbacksConfiguration(@Nullable final Context context) {
-            //Default listener comes from maoni-email
-            if (context != null) {
-                final Set<String> defaultToAddresses =
-                    context.getSharedPreferences(Maoni.class.getPackage().getName(),
-                        Context.MODE_PRIVATE)
-                        .getStringSet(DEFAULT_LISTENER_EMAIL_TO, new HashSet<String>());
-                this.listener =
-                    new MaoniEmailListener(context,
-                        defaultToAddresses.toArray(new String[defaultToAddresses.size()]));
-            } else {
-                Log.d(LOG_TAG, "context is NULL => no default listener configured");
-            }
+            Log.d(LOG_TAG, "no default listener configured");
         }
 
         @NonNull
