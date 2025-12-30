@@ -75,8 +75,10 @@ task generateSourcesJar(type: Jar) {
 task generateJavadocs(type: Javadoc) {
     failOnError false
     source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath()
-            .join(File.pathSeparator))
+    def boot = android.getBootClasspath()
+    if (boot != null && !boot.isEmpty()) {
+        classpath += files(boot.join(File.pathSeparator))
+    }
 }
 
 task generateJavadocsJar(type: Jar) {
