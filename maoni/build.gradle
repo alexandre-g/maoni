@@ -22,7 +22,7 @@
 
 apply plugin: 'com.android.library'
 //apply plugin: 'com.github.dcendents.android-maven'
-//apply plugin: 'maven-publish'
+apply plugin: 'maven-publish'
 
 final VERSION_NAME = maoni_version
 final VERSION_CODE = VERSION_NAME.replace('.', '').toInteger()
@@ -89,4 +89,8 @@ generateJavadocsJar.dependsOn generateJavadocs
 artifacts {
     archives generateJavadocsJar
     archives generateSourcesJar
+}
+
+publishing {
+    singleVariant("release")
 }
