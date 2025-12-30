@@ -42,7 +42,6 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.android.tools.build:gradle:7.3.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
     }
 }
 
@@ -69,38 +68,6 @@ task generatePomFileForProductionPublication {
 
 ext.getDebugSigningConfig = {
     return ['androiddebugkey', new File("${rootDir}/debug.keystore"), 'android', 'android']
-}
-
-ext.getReleaseSigningInfo = {
-    android ->
-        def storeFile = null
-        def storePassword = null
-        def keyAlias = null
-        def keyPassword = null
-
-        //Attempt to read keystore.properties file, if any first
-        final propsFile = new File(homePath.toString() + "/.droid/", "maoni-keystore.properties")
-        final configName = 'release'
-
-        if (propsFile.exists() && android.signingConfigs.hasProperty(configName)) {
-            logger.info("Using properties file located at " + propsFile.absolutePath)
-            final props = new Properties()
-            props.load(new FileInputStream(propsFile))
-            storeFile = new File(props['keystore'].toString())
-            storePassword = props['storePassword']
-            keyAlias = props['keyAlias']
-            keyPassword = props['keyPassword']
-
-        } else if (System.console() != null) {
-            storeFile = System.console().readLine("\nPlease enter path to keystore file: ")
-            storeFile = new File(storeFile)
-            storePassword = System.console().readPassword("\nPlease enter the store password: ")
-            keyAlias = System.console().readLine("\nPlease enter the key alias: ")
-            keyPassword = System.console().readPassword("\nPlease enter the key password: ")
-        }
-
-        return [storeFile, storePassword, keyAlias, keyPassword]
-
 }
 
 subprojects { project ->

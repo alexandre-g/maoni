@@ -21,7 +21,6 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.jfrog.bintray'
 //apply plugin: 'com.github.dcendents.android-maven'
 //apply plugin: 'maven-publish'
 
@@ -89,45 +88,4 @@ generateJavadocsJar.dependsOn generateJavadocs
 artifacts {
     archives generateJavadocsJar
     archives generateSourcesJar
-}
-
-bintray {
-
-    //Attempt to read keystore.properties file, if any first
-    final propsFile = new File("${System.properties['user.home']}/.droid/", "maoni.bintray.properties")
-
-    if (propsFile.exists()) {
-        final props = new Properties()
-        props.load(new FileInputStream(propsFile))
-        user = props['user']
-        key = props['key']
-    } else {
-        user = ""
-        key = ""
-    }
-
-    publish = true //If version should be auto published after an upload
-
-    pkg {
-        repo = 'maven'
-        name = 'org.rm3l:maoni'
-        labels = ['maoni', 'android', 'feedback', 'android-lib', 'comments', 'review', 'bug', 'issue']
-
-        //noinspection GroovyAssignabilityCheck
-        version {
-            name = VERSION_NAME
-            vcsTag = VERSION_NAME
-            desc = 'Maoni Android Library'
-            released = new Date()
-        }
-
-        publicDownloadNumbers = true
-
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/rm3l/maoni.git'
-        websiteUrl = 'https://maoni.rm3l.org'
-        issueTrackerUrl = 'https://github.com/rm3l/maoni/issues'
-
-    }
-    configurations = ['archives']
 }
